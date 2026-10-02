@@ -55,6 +55,7 @@ export function autoShop(person, earned) {
 }
 
 export function buildPeople(data) {
+  const looks = {};
   return data.team.map((p, i) => {
     const earned = earnedCoins(p.counts, data.releases);
     const shop = autoShop(p, earned);
@@ -62,6 +63,7 @@ export function buildPeople(data) {
     return {
       ...p,
       index: i,
+      lookIndex: (looks[p.look] = (looks[p.look] ?? -1) + 1),
       earned,
       ...shop,
       spent: earned - shop.balance,

@@ -8,6 +8,7 @@
       "id": "aman",
       "name": "Aman",
       "role": "farmer",
+      "look": "male",
       "counts": {
         "prs": 9,
         "standups": 9,
@@ -18,6 +19,7 @@
       "id": "alymbek",
       "name": "Alymbek",
       "role": "farmer",
+      "look": "male",
       "counts": {
         "prs": 6,
         "standups": 8,
@@ -28,6 +30,7 @@
       "id": "aisulu",
       "name": "Aisulu",
       "role": "farmer",
+      "look": "female",
       "counts": {
         "prs": 3,
         "standups": 9,
@@ -38,6 +41,7 @@
       "id": "daniel",
       "name": "Daniel",
       "role": "farmer",
+      "look": "male",
       "counts": {
         "prs": 1,
         "standups": 3,
@@ -48,6 +52,7 @@
       "id": "sasha",
       "name": "Sasha",
       "role": "farmer",
+      "look": "male",
       "counts": {
         "prs": 2,
         "standups": 8,
@@ -58,6 +63,7 @@
       "id": "garry",
       "name": "Garry",
       "role": "farmer",
+      "look": "male",
       "counts": {
         "prs": 2,
         "standups": 9,
@@ -68,6 +74,7 @@
       "id": "tima",
       "name": "Tima",
       "role": "gardener",
+      "look": "male",
       "counts": {
         "prs": 0,
         "standups": 9,
@@ -78,6 +85,7 @@
       "id": "urmat",
       "name": "Urmat",
       "role": "gardener",
+      "look": "male",
       "counts": {
         "prs": 0,
         "standups": 8,
@@ -88,6 +96,7 @@
       "id": "aiym",
       "name": "Aiym",
       "role": "gardener",
+      "look": "female",
       "counts": {
         "prs": 0,
         "standups": 9,
@@ -98,6 +107,7 @@
       "id": "aaron",
       "name": "Aaron",
       "role": "gardener",
+      "look": "male",
       "counts": {
         "prs": 0,
         "standups": 4,
@@ -108,6 +118,7 @@
       "id": "chynara",
       "name": "Chynara eje",
       "role": "builder",
+      "look": "female",
       "counts": {
         "prs": 0,
         "standups": 5,
@@ -118,6 +129,7 @@
       "id": "elaine",
       "name": "Elaine",
       "role": "builder",
+      "look": "female",
       "counts": {
         "prs": 0,
         "standups": 4,

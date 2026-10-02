@@ -6,8 +6,8 @@ import { piece } from './kit.js';
 import { hash, COINS } from './logic.js';
 import { sound } from './audio.js';
 
-const MODELS = ['female-a', 'male-a', 'female-b', 'male-b', 'female-c', 'male-c',
-  'female-d', 'male-d', 'female-e', 'male-e', 'female-f', 'male-f'];
+// Each team member in data/farm.json has "look": "female" or "male"; people with the same look get different characters.
+const MODELS = { female: ['a', 'b', 'c', 'd', 'e', 'f'], male: ['a', 'b', 'c', 'd', 'e', 'f'] };
 const WALK = 1.4;
 const RUN = 2.8;
 const SCALE = 1.4;
@@ -226,7 +226,9 @@ export class Villager {
 }
 
 export async function makeVillager(person, places, week, env) {
-  const model = await piece(`people/character-${MODELS[person.index % MODELS.length]}`, { scale: SCALE });
+  const look = person.look === 'female' ? 'female' : 'male';
+  const variants = MODELS[look];
+  const model = await piece(`people/character-${look}-${variants[person.lookIndex % variants.length]}`, { scale: SCALE });
   model.updateMatrixWorld(true);
   const head = model.getObjectByName('head');
   const headMesh = model.getObjectByName('head-mesh');
