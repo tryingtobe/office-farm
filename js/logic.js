@@ -89,3 +89,47 @@ export function buildingProgress(people, releases) {
     return { ...b, value, level, next: b.steps[level] ?? null };
   });
 }
+
+// Badges only reward; nobody loses anything. All counted over the 7 days before `updated`.
+export const BADGES = {
+  earlyBird: { icon: '🐦', name: 'Early bird', about: 'First standup of the day' },
+  streak: { icon: '🔥', name: 'Streak', about: '5 or more working days in a row with a standup' },
+  bugHunter: { icon: '🐞', name: 'Bug hunter', about: '5 or more Done tickets this week' },
+  greenThumb: { icon: '🌱', name: 'Green thumb', about: '5 or more merged PRs this week' },
+};
+
+export function badgesFor(person, events, updated) {
+  const at = e => e.at ?? e.date;
+  const weekAgo = new Date(Date.parse(updated) - 7 * 864e5).toISOString();
+  const week = events.filter(e => at(e) >= weekAgo);
+  const mine = week.filter(e => e.who === person.id);
+  const out = [];
+
+  // early bird: days where this person's standup came first
+  const firstByDay = {};
+  for (const e of week.filter(e => e.type === 'standup')) {
+    const day = at(e).slice(0, 10);
+    if (!firstByDay[day] || at(e) < at(firstByDay[day])) firstByDay[day] = e;
+  }
+  const early = Object.values(firstByDay).filter(e => e.who === person.id).length;
+  if (early) out.push({ ...BADGES.earlyBird, count: early });
+
+  // streak: count back over working days (Mon-Fri) from the last update; today may still be missing
+  const days = new Set(events.filter(e => e.who === person.id && e.type === 'standup').map(e => at(e).slice(0, 10)));
+  let streak = 0;
+  const d = new Date(updated.slice(0, 10) + 'T00:00:00Z');
+  if (!days.has(d.toISOString().slice(0, 10))) d.setUTCDate(d.getUTCDate() - 1);
+  for (let i = 0; i < 60; i++, d.setUTCDate(d.getUTCDate() - 1)) {
+    const wd = d.getUTCDay();
+    if (wd === 0 || wd === 6) continue;
+    if (!days.has(d.toISOString().slice(0, 10))) break;
+    streak++;
+  }
+  if (streak >= 5) out.push({ ...BADGES.streak, count: streak });
+
+  const tickets = mine.filter(e => e.type === 'ticket').length;
+  if (tickets >= 5) out.push({ ...BADGES.bugHunter, count: tickets });
+  const prs = mine.filter(e => e.type === 'pr').length;
+  if (prs >= 5) out.push({ ...BADGES.greenThumb, count: prs });
+  return out;
+}

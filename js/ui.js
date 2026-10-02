@@ -1,5 +1,6 @@
 // The side panel: leaderboard, town, shop, activity feed.
 import { COINS, SHOP, ROLE_ICON } from './logic.js';
+import { SEASON_NAME } from './env.js';
 
 const $ = id => document.getElementById(id);
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -43,7 +44,8 @@ export function showPerson(p, releases) {
       <span>🪙 Earned: ${p.earned}</span><span>👛 Left: ${p.balance}</span>
     </div>
     <p><b>Owns:</b> ${items}</p>
-    <p><b>Saving for:</b> ${saving}</p>`;
+    <p><b>Saving for:</b> ${saving}</p>
+    <p><b>Badges:</b> ${p.badges.length ? p.badges.map(b => `${b.icon} ${b.name} ×${b.count}`).join(', ') : 'None this week yet'}</p>`;
   $('selected').classList.remove('hidden');
   openTab('board');
 }
@@ -69,7 +71,7 @@ export function renderSidebar(farm, people, buildings, onPick) {
   $('leaderboard').innerHTML = ranked.map((p, i) => `
     <li data-id="${p.id}">
       <span class="rank">${['🥇', '🥈', '🥉'][i] || i + 1}</span>
-      <span class="who">${p.name}<small>${ROLE_ICON[p.role]} ${p.role} · ${p.owned.map(it => it.icon).join('')}</small></span>
+      <span class="who">${p.name} ${p.badges.map(b => `<span title="${b.name}: ${b.about}">${b.icon}</span>`).join('')}<small>${ROLE_ICON[p.role]} ${p.role} · ${p.owned.map(it => it.icon).join('')}</small></span>
       <span class="coins">🪙 ${p.earned}</span>
     </li>`).join('');
   document.querySelectorAll('#leaderboard li').forEach(li =>
@@ -103,4 +105,25 @@ export function renderSidebar(farm, people, buildings, onPick) {
   $('team-coins').textContent = `🪙 ${total} team coins`;
   $('updated').textContent = `Updated: ${shortDate(farm.updated)}`;
   $('sample').classList.toggle('hidden', !farm.sample);
+}
+
+const PLACES = {
+  yurt: ['🏕️ Boz üy', 'A Kyrgyz yurt. At night the team sits by the campfire next to it.'],
+  boorsok: ['🍩 Boorsok table', 'Fresh boorsok and tea next to the Fridge. Help yourself!'],
+};
+
+export function showPlace(id) {
+  const [title, text] = PLACES[id];
+  $('selected').innerHTML = `<h3>${title}</h3><p>${text}</p>`;
+  $('selected').classList.remove('hidden');
+  openTab('board');
+}
+
+const SEASON_ICON = { fall: '🍂', winter: '❄️', spring: '🌸', summer: '☀️' };
+const WEATHER_ICON = { sunny: '☀️', fog: '🌫️', rain: '🌧️', snow: '🌨️' };
+
+export function showConditions(env) {
+  const hh = String(Math.floor(env.hour)).padStart(2, '0');
+  const mm = String(Math.floor((env.hour % 1) * 60)).padStart(2, '0');
+  $('season').textContent = `${SEASON_ICON[env.season]} ${SEASON_NAME[env.season]} · ${env.night && env.weather === 'sunny' ? '✨' : WEATHER_ICON[env.weather]} · ${env.night ? '🌙' : '🕒'} ${hh}:${mm} Bishkek${env.weekend ? ' · Weekend' : ''}`;
 }

@@ -207,3 +207,16 @@ body {
   15% { transform: translateY(-6px) scale(1.15); opacity: 1; }
   to { transform: translateY(-60px) scale(1); opacity: 0; }
 }
+
+.speech {
+  font: bold 12px "Trebuchet MS", sans-serif;
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid #3b2414;
+  border-radius: 10px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.panel h4 { margin: 14px 0 4px; color: var(--plum); }
+code { background: #f3d9b1; padding: 0 4px; border-radius: 4px; }

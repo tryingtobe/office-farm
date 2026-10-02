@@ -1,15 +1,20 @@
-// Office Farm: a fall village that grows from real team work.
+// Office Farm: a village that grows from real team work.
 // The update robot writes data/farm.json. Everything here only reads it.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { buildPeople, buildingProgress } from './logic.js';
+import { buildPeople, buildingProgress, badgesFor } from './logic.js';
 import { buildBuilding } from './buildings.js';
-import { ground, path, plot, orchard, scenery, leaves, PLOT_SPOTS } from './world.js';
+import { ground, path, plot, orchard, scenery, setSeason, PLOT_SPOTS } from './world.js';
 import { makeVillager } from './villagers.js';
-import { setupUI, renderSidebar, showPerson, showBuilding } from './ui.js';
+import { setupUI, renderSidebar, showPerson, showBuilding, showPlace, showConditions } from './ui.js';
 import { piece } from './kit.js';
 import { fireworks, updateFireworks } from './fireworks.js';
+import { readEnvironment } from './env.js';
+import { atmosphere } from './atmosphere.js';
+import { mountains, yurt, campfire, paddock, boorsokTable, CAMPFIRE } from './kyrgyz.js';
+import { animals } from './animals.js';
+import { setupSound } from './audio.js';
 
 const container = document.getElementById('world');
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -28,11 +33,17 @@ labels.domElement.style.inset = '0';
 labels.domElement.style.pointerEvents = 'none';
 container.appendChild(labels.domElement);
 
+// Bishkek time of day, season and weather; refreshed every 30 seconds
+let now = readEnvironment();
+setInterval(() => { now = readEnvironment(); showConditions(now); }, 30000);
+const getEnv = () => now;
+setSeason(now.season);
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#f6c88f');
-scene.fog = new THREE.Fog('#f6c88f', 38, 75);
+scene.fog = new THREE.Fog('#f6c88f', 45, 150);
 
-const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 200);
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 400);
 camera.position.set(16, 19, 26);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(3, 0, -3);
@@ -42,7 +53,8 @@ controls.minDistance = 8;
 controls.maxDistance = 55;
 controls.update();
 
-scene.add(new THREE.HemisphereLight('#ffe7c4', '#6b5a2e', 1.4));
+const hemi = new THREE.HemisphereLight('#ffe7c4', '#6b5a2e', 1.4);
+scene.add(hemi);
 const sun = new THREE.DirectionalLight('#ffd49a', 2.6);
 sun.position.set(-18, 26, 12);
 sun.castShadow = true;
@@ -50,6 +62,7 @@ sun.shadow.mapSize.set(2048, 2048);
 Object.assign(sun.shadow.camera, { left: -28, right: 28, top: 28, bottom: -28, near: 1, far: 80 });
 sun.shadow.bias = -0.0005;
 scene.add(sun);
+const sky = atmosphere(scene, { sun, hemi }, now);
 
 function label(html, cls, obj, height) {
   const div = document.createElement('div');
@@ -62,11 +75,15 @@ function label(html, cls, obj, height) {
 }
 
 const villagers = [];
+const bees = [];
 let people = [];
 let buildings = [];
 let farm = null;
 let selectedLabel = null;
 let focus = null; // object the camera glides towards after a pick
+let pets = null;
+let fire = null;
+let horses = null;
 const pickables = [];
 
 function pick(target) {
@@ -79,7 +96,11 @@ function pick(target) {
       selectedLabel = v.label;
       selectedLabel.element.classList.remove('hidden');
       focus = v.model;
+      pets?.dog.follow(v);
     }
+  } else if (target.type === 'place') {
+    showPlace(target.id);
+    focus = scene.children.find(o => o.userData.pick?.id === target.id) ?? null;
   } else {
     showBuilding(buildings.find(b => b.id === target.id));
     focus = scene.children.find(o => o.userData.pick?.id === target.id) ?? null;
@@ -89,11 +110,12 @@ function pick(target) {
 async function build(data) {
   farm = data;
   people = buildPeople(data);
+  for (const p of people) p.badges = badgesFor(p, data.events, data.updated);
   buildings = buildingProgress(people, data.releases);
 
   ground(scene);
-  const square = await piece('town/fountain-round-detail', { scale: 1.2 });
-  scene.add(square);
+  mountains(scene, now.season, now.weather);
+  scene.add(await piece('town/fountain-round-detail', { scale: 1.2 }));
 
   const doors = {};
   for (const b of buildings) {
@@ -104,12 +126,13 @@ async function build(data) {
     path(scene, { x: 0, z: 0 }, g.userData.door);
     label(`${b.icon} ${b.name}<small>level ${b.level}/4</small>`, 'building-label', g, g.userData.labelHeight);
   }
-  // paths to the fields
+  // paths to the fields, the campfire and the paddock
   path(scene, { x: 0, z: 0 }, { x: 0, z: 5.6 });
   path(scene, { x: -10.5, z: 5.6 }, { x: 10.5, z: 5.6 });
   path(scene, { x: -10.5, z: 9.8 }, { x: 10.5, z: 9.8 });
   path(scene, { x: -10.5, z: 5.6 }, { x: -10.5, z: 9.8 });
   path(scene, { x: 10.5, z: 5.6 }, { x: 10.5, z: 9.8 });
+  path(scene, doors.gameroom, CAMPFIRE);
 
   const growers = people.filter(p => p.role !== 'builder');
   const homes = {};
@@ -118,6 +141,7 @@ async function build(data) {
     scene.add(g);
     pickables.push(g);
     homes[p.id] = g.userData.work;
+    g.traverse(o => { if (o.userData.bee) bees.push(o); });
     const sign = new THREE.Object3D();
     sign.position.set(0, 0, -1.6);
     g.add(sign);
@@ -127,20 +151,42 @@ async function build(data) {
 
   const totalTickets = people.reduce((s, p) => s + p.counts.tickets, 0);
   await orchard(scene, data.releases, totalTickets);
+  const orchardSign = new THREE.Object3D();
+  orchardSign.position.set(15.3, 3.6, 5);
+  scene.add(orchardSign);
+  label('🍎 Issyk-Kul apple orchard', 'building-label', orchardSign, 0);
   await scenery(scene);
+
+  // Kyrgyz corner: yurt and campfire, horses, boorsok next to the Fridge
+  const y = yurt(scene);
+  pickables.push(y);
+  label('🏕️ Boz üy', 'building-label', y, 2.6);
+  fire = await campfire(scene);
+  horses = await paddock(scene);
+  const fridgeDoor = doors.fridge;
+  pickables.push(boorsokTable(scene, new THREE.Vector3(fridgeDoor.x - 1.6, 0, fridgeDoor.z - 1.4)));
 
   const weekAgo = new Date(Date.parse(data.updated) - 7 * 864e5).toISOString();
   for (const p of people) {
     const week = data.events.filter(e => e.who === p.id && eventTime(e) >= weekAgo).reverse();
-    const places = { ...doors, home: homes[p.id], buildings: Object.values(doors) };
-    const v = await makeVillager(p, places, week);
-    v.label = label(p.name, 'person-label hidden', v.model, 1.2);
+    const places = { ...doors, home: homes[p.id], campfire: CAMPFIRE, buildings: Object.values(doors) };
+    const v = await makeVillager(p, places, week, getEnv);
+    const badgeIcons = p.badges.map(b => b.icon).join('');
+    v.label = label(`${p.name} ${badgeIcons}`, 'person-label hidden', v.model, 1.2);
     scene.add(v.model);
     pickables.push(v.model);
     villagers.push(v);
   }
+  pets = await animals(scene, villagers);
+
+  // night lights: every lantern glows, and each building door gets a warm light
+  const lanterns = [];
+  scene.traverse(o => { if (o.name === 'lantern') lanterns.push(o); });
+  scene.updateMatrixWorld(true);
+  sky.lightUp(lanterns, Object.values(doors));
 
   renderSidebar(farm, people, buildings, pick);
+  showConditions(now);
 }
 
 const eventTime = e => e.at ?? e.date;
@@ -198,17 +244,19 @@ addEventListener('resize', () => {
 });
 
 setupUI();
-const updateLeaves = leaves(scene);
+setupSound(document.getElementById('sound'), getEnv);
 const clock = new THREE.Clock();
 
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05);
   const t = clock.elapsedTime;
   villagers.forEach(v => v.update(dt));
-  scene.traverse(o => {
-    if (o.userData.bee) o.position.set(Math.cos(t * 3) * 0.35, 0.8 + Math.sin(t * 5) * 0.12, Math.sin(t * 3) * 0.35);
-  });
-  updateLeaves(dt);
+  pets?.update(dt);
+  horses?.(dt, t);
+  fire?.update(t);
+  bees.forEach(b => b.position.set(Math.cos(t * 3) * 0.35, 0.8 + Math.sin(t * 5) * 0.12, Math.sin(t * 3) * 0.35));
+  sky.update(dt, t, now, controls.target);
+  if (fire) fire.light.intensity = (1 - now.daylight) * 8;
   updateFireworks(scene, dt);
   if (focus) {
     const step = focus.position.clone().setY(0).sub(controls.target).multiplyScalar(Math.min(1, dt * 3));
@@ -229,6 +277,7 @@ fetch(`data/farm.json?v=${Date.now()}`)
     await build(data);
     document.getElementById('loading').classList.add('done');
     window.farmReady = true;
+    window.farmCamera = { camera, controls }; // used by screenshot tooling
     celebrateNew(data);
     watchForUpdates();
   })

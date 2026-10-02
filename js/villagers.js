@@ -4,13 +4,30 @@ import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { piece } from './kit.js';
 import { hash, COINS } from './logic.js';
+import { sound } from './audio.js';
 
 const MODELS = ['female-a', 'male-a', 'female-b', 'male-b', 'female-c', 'male-c',
   'female-d', 'male-d', 'female-e', 'male-e', 'female-f', 'male-f'];
 const WALK = 1.4;
 const RUN = 2.8;
 const SCALE = 1.4;
-const BUBBLE = { standup: '💧', pr: '🌱', ticket: '🧺', release: '🎉', errand: '☕' };
+const BUBBLE = { standup: '💧', pr: '🌱', ticket: '🧺', release: '🎉', errand: '☕', night: '💤', weekend: '🎮' };
+
+// Fun things people say. Never about real work, because the site is public.
+const LINES = {
+  any: ['My pumpkins are huge! 🎃', 'Coffee time ☕', 'What a nice day!', 'Has anyone seen my hoe?', 'These apples smell amazing 🍎',
+    'Boorsok at the Fridge! 😋', "Let's go, team! 💪", 'I love this village 🏡', 'Who left the gate open? 🐔', 'Time for chai 🍵',
+    'The horses look happy today 🐴', 'Race you to the yurt!'],
+  night: ['So sleepy 💤', 'Look at the stars ✨', 'The fire is so warm 🔥', 'Good night, village 🌙'],
+  weekend: ['Weekend! 🎉', 'Ping-pong, anyone? 🏓', 'No meetings today 😌'],
+  rain: ['Nice rain for the crops ☔', 'My boots are wet!'],
+  snow: ['Snowball fight! ❄️', "Brr, it's cold ⛄"],
+  fog: ["I can't see my field! 🌫️"],
+  spring: ['The apple trees are blooming 🌸'],
+  summer: ['So hot today ☀️'],
+  fall: ['Look at the leaves 🍁', 'Harvest time! 🧺'],
+  winter: ['Hot tea in the yurt? 🫖'],
+};
 const COIN_OF = { standup: COINS.standups, pr: COINS.prs, ticket: COINS.tickets, release: COINS.release };
 const mat = color => new THREE.MeshLambertMaterial({ color });
 
@@ -51,8 +68,11 @@ function tag(cls, html, height) {
 }
 
 export class Villager {
-  // places: { home, conference, store, fridge, office, square, buildings: [...] }
-  constructor(person, model, places, week) {
+  // places: { home, conference, store, fridge, office, gameroom, campfire, buildings: [...] }
+  // env() returns the current time of day, season and weather (see env.js)
+  constructor(person, model, places, week, env) {
+    this.env = env;
+    this.chatIn = 6 + (hash(person.id + 'chat') % 250) / 10;
     this.person = person;
     this.model = model;
     this.places = places;
@@ -70,6 +90,24 @@ export class Villager {
 
     this.bubble = tag('bubble', '', 1.25 / SCALE);
     model.add(this.bubble);
+    this.speech = tag('speech hidden', '', 1.75 / SCALE);
+    model.add(this.speech);
+  }
+
+  chat(dt) {
+    this.chatIn -= dt;
+    if (this.chatIn > 0) return;
+    const now = this.env();
+    if (this.speech.element.classList.contains('hidden')) {
+      const pool = [...LINES.any, ...LINES[now.season], ...(LINES[now.weather] ?? []),
+        ...(now.night ? LINES.night.concat(LINES.night) : []), ...(now.weekend ? LINES.weekend : [])];
+      this.speech.element.textContent = pool[Math.floor(Math.random() * pool.length)];
+      this.speech.element.classList.remove('hidden');
+      this.chatIn = 3.5;
+    } else {
+      this.speech.element.classList.add('hidden');
+      this.chatIn = 18 + Math.random() * 30;
+    }
   }
 
   play(name) {
@@ -96,6 +134,7 @@ export class Villager {
     // the renderer moves the outer div with a transform, so the animation runs on an inner span
     const pop = tag('', `<span class="coin-pop">+${amount} 🪙</span>`, 1.4 / SCALE);
     this.model.add(pop);
+    sound.coin();
     pop.element.firstChild.addEventListener('animationend', () => { this.model.remove(pop); pop.element.remove(); });
   }
 
@@ -105,6 +144,15 @@ export class Villager {
     const square = new THREE.Vector3(Math.cos(Math.random() * 6.3) * 2.6, 0, Math.sin(Math.random() * 6.3) * 2.6 + 0.2);
     const builder = this.person.role === 'builder';
     if (type === 'release') return [{ to: square, anim: 'jump', time: 6 }];
+    if (type === 'night') {
+      const a = (this.person.index / 12) * Math.PI * 2 + Math.random() * 0.4;
+      const seat = p.campfire.clone().add(new THREE.Vector3(Math.cos(a) * 1.5, 0, Math.sin(a) * 1.5));
+      return [{ to: seat, anim: 'sit', time: 15 + Math.random() * 15 }];
+    }
+    if (type === 'weekend') {
+      const spot = p.gameroom.clone().add(new THREE.Vector3((Math.random() - 0.5) * 4, 0, (Math.random() - 0.5) * 3));
+      return [{ to: spot, anim: ['emote-yes', 'sit', 'idle'][Math.floor(Math.random() * 3)], time: 6 + Math.random() * 6 }];
+    }
     if (builder) {
       const first = type === 'standup' ? { to: p.conference, anim: 'emote-yes', time: 2 } : { to: p.store, anim: 'pick-up', time: 1.2 };
       return [first, { to: p.office, anim: 'interact-right', time: 4 }];
@@ -119,6 +167,9 @@ export class Villager {
 
   nextTask() {
     if (this.urgent.length) return this.urgent.shift();
+    const now = this.env();
+    if (now.night) return { type: 'night' };
+    if (now.weekend) return { type: 'weekend' };
     if (!this.week.length) return { type: 'errand' };
     const e = this.week[this.replayAt % this.week.length];
     this.replayAt++;
@@ -127,6 +178,7 @@ export class Villager {
 
   update(dt) {
     this.mixer.update(dt);
+    this.chat(dt);
     const pos = this.model.position;
     if (this.route?.length) {
       const goal = this.route[0];
@@ -134,7 +186,11 @@ export class Villager {
       const dist = Math.hypot(dx, dz);
       if (dist < 0.08) {
         this.route.shift();
-        if (!this.route.length) { this.play(this.step.anim); this.wait = this.step.time; }
+        if (!this.route.length) {
+          this.play(this.step.anim);
+          this.wait = this.step.time;
+          if (this.task.type === 'night') this.model.rotation.y = Math.atan2(this.places.campfire.x - pos.x, this.places.campfire.z - pos.z);
+        }
         return;
       }
       const step = Math.min(dist, (this.task.fresh ? RUN : WALK) * dt);
@@ -169,7 +225,7 @@ export class Villager {
   }
 }
 
-export async function makeVillager(person, places, week) {
+export async function makeVillager(person, places, week, env) {
   const model = await piece(`people/character-${MODELS[person.index % MODELS.length]}`, { scale: SCALE });
   model.updateMatrixWorld(true);
   const head = model.getObjectByName('head');
@@ -191,5 +247,5 @@ export async function makeVillager(person, places, week) {
     arm.add(tool);
   }
   model.traverse(o => { o.userData.pick = { type: 'person', id: person.id }; });
-  return new Villager(person, model, places, week);
+  return new Villager(person, model, places, week, env);
 }

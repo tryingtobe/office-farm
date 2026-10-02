@@ -14,10 +14,11 @@
   <div id="loading">🌾 Planting the farm…</div>
 
   <header class="topbar">
-    <h1>🌾 Office Farm <span class="season">Fall season</span><span id="sample" class="sample hidden">Sample data</span></h1>
+    <h1>🌾 Office Farm <span id="season" class="season">Fall</span><span id="sample" class="sample hidden">Sample data</span></h1>
     <div class="stats">
       <span id="team-coins">🪙 0</span>
       <span id="updated">Updated: —</span>
+      <button id="sound" class="toggle">🔇</button>
       <button id="toggle" class="toggle" title="Show or hide the panel">☰</button>
     </div>
   </header>
@@ -57,7 +58,17 @@
         <li><b>🎉 Production release</b> plants a new fruit tree. <em>+20 coins for everyone</em></li>
         <li><b>🔨 Builders</b> build the Office with every standup, PR or ticket.</li>
       </ul>
+      <h4>🏆 Badges (last 7 days)</h4>
+      <ul class="rules">
+        <li><b>🐦 Early bird</b>: first standup of the day</li>
+        <li><b>🔥 Streak</b>: 5 or more working days in a row with a standup</li>
+        <li><b>🐞 Bug hunter</b>: 5 or more Done tickets in a week</li>
+        <li><b>🌱 Green thumb</b>: 5 or more merged PRs in a week</li>
+      </ul>
+      <h4>🌙 Time, weather and seasons</h4>
+      <p class="note">The village follows Bishkek time. At night the lanterns light up and everyone sits by the campfire. On weekends they relax at the Game room. Weather changes every day, and the season changes with the calendar.</p>
       <p class="note">Each building grows from one kind of work. See the 🏘️ Town tab.</p>
+      <p class="note">🎬 Demo: add <code>?time=21</code>, <code>?day=sat</code>, <code>?season=winter</code>, <code>?weather=rain</code> or <code>?party</code> to the address.</p>
       <p class="note">🖱️ Drag to turn the camera, scroll to zoom, right-drag to move. Click a person, field or building.</p>
     </div>
   </aside>

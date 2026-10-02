@@ -1,5 +1,6 @@
 // Release fireworks over the village square.
 import * as THREE from 'three';
+import { sound } from './audio.js';
 
 const COLORS = ['#ff4d4d', '#ffd23f', '#3fc1ff', '#b45cff', '#5cff8a', '#ff9a3f'];
 const bursts = [];
@@ -20,6 +21,7 @@ function burst(scene, at) {
   }));
   scene.add(points);
   bursts.push({ points, vel, age: 0 });
+  sound.pop();
 }
 
 // Fire a show of `seconds` length around (0, 0).

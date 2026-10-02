@@ -5,15 +5,29 @@ import { hash } from './logic.js';
 
 const rand = seed => (hash(String(seed)) % 10000) / 10000;
 
-// The kit's fall leaves are one pale orange; give each tree its own autumn colour.
-const FALL = ['#d9541e', '#e8892a', '#b8321a', '#efae2c', '#c9661f'];
+// The kit's leaves are one pale colour; give each tree its own colour for the season.
+const LEAVES = {
+  fall: ['#d9541e', '#e8892a', '#b8321a', '#efae2c', '#c9661f'],
+  summer: ['#4f8f3a', '#5fa344', '#3f7d36', '#6aa84f'],
+  spring: ['#f4a6c8', '#7cc35a', '#9fd36b', '#f7c1d9', '#8cc95e'],
+  winter: ['#eef3f6', '#dfe8ee', '#e8eef2'],
+};
+const GROUND = {
+  fall: ['#a7a948', '#8fa543', '#82993c'],
+  summer: ['#7fb84a', '#6fa83e', '#649c38'],
+  spring: ['#9ccc5a', '#86bd4c', '#78b044'],
+  winter: ['#f4f7fa', '#e6edf2', '#dde6ec'],
+};
 const PINE = '#2f6b4a';
+let season = 'fall';
+export function setSeason(s) { season = s; }
 const recolored = new Map();
 function recolor(obj, seed) {
   obj.traverse(o => {
     if (!o.isMesh) return;
     const name = o.material.name;
-    const color = name === 'leafsFall' ? FALL[hash(String(seed)) % FALL.length] : name === 'leafsDark' ? PINE : null;
+    const palette = LEAVES[season];
+    const color = name === 'leafsFall' ? palette[hash(String(seed)) % palette.length] : name === 'leafsDark' ? PINE : null;
     if (!color) return;
     const key = name + color;
     if (!recolored.has(key)) {
@@ -30,12 +44,12 @@ function recolor(obj, seed) {
 export const PLOT_SPOTS = [7.5, 12].flatMap(z => [-8, -4, 0, 4, 8].map(x => ({ x, z })));
 
 export function ground(scene) {
-  const geo = new THREE.PlaneGeometry(90, 90, 60, 60);
+  const geo = new THREE.PlaneGeometry(260, 260, 120, 120);
   const colors = [];
   const c = new THREE.Color();
   for (let i = 0; i < geo.attributes.position.count; i++) {
     const n = rand('ground' + i);
-    c.set(n > 0.85 ? '#a7a948' : n > 0.4 ? '#8fa543' : '#82993c');
+    c.set(GROUND[season][n > 0.85 ? 0 : n > 0.4 ? 1 : 2]);
     colors.push(c.r, c.g, c.b);
   }
   geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
@@ -165,14 +179,15 @@ export async function plot(person, spot) {
 
 export async function orchard(scene, releases, tickets) {
   const count = Math.min(10, 2 + releases);
-  const fruitColors = ['#c0211f', '#d9c13a', '#ff8c1a'];
-  const fruitPerTree = Math.min(10, Math.ceil(tickets / count));
+  // Issyk-Kul apples: blossom in spring, red apples in summer and fall, bare in winter
+  const fruitColors = { spring: ['#ffffff', '#f7b6d2'], summer: ['#c0211f', '#7cbf3a'], fall: ['#c0211f', '#d92b1f'], winter: [] }[season];
+  const fruitPerTree = fruitColors.length ? Math.min(10, Math.ceil(tickets / count)) : 0;
   for (let i = 0; i < count; i++) {
     const x = 14 + (i % 2) * 2.6 + (Math.floor(i / 2) % 2) * 1.3;
     const z = 6 + Math.floor(i / 2) * 2.6;
     const tree = recolor(await piece(i % 2 ? 'nature/tree_oak_fall' : 'nature/tree_default_fall', { x, z, scale: 2.3 }), 'orchard' + i);
     scene.add(tree);
-    const mat = new THREE.MeshLambertMaterial({ color: fruitColors[i % 3] });
+    const mat = fruitPerTree && new THREE.MeshLambertMaterial({ color: fruitColors[i % fruitColors.length] });
     for (let f = 0; f < fruitPerTree; f++) {
       const a = rand(`f${i}-${f}`) * Math.PI * 2;
       const fruit = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), mat);
@@ -204,27 +219,3 @@ export async function scenery(scene) {
   (await Promise.all(jobs)).forEach(o => scene.add(o));
 }
 
-export function leaves(scene) {
-  const count = 180;
-  const geo = new THREE.PlaneGeometry(0.12, 0.09);
-  const mesh = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ side: THREE.DoubleSide }), count);
-  const palette = ['#c8371d', '#f07b1f', '#f5b82e', '#a0522d'].map(c => new THREE.Color(c));
-  const state = [];
-  for (let i = 0; i < count; i++) {
-    mesh.setColorAt(i, palette[i % 4]);
-    state.push({ x: (Math.random() - 0.5) * 40, y: Math.random() * 9, z: (Math.random() - 0.5) * 36, s: 0.3 + Math.random() * 0.5, p: Math.random() * 6 });
-  }
-  scene.add(mesh);
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v = new THREE.Vector3(), one = new THREE.Vector3(1, 1, 1);
-  return dt => {
-    state.forEach((l, i) => {
-      l.y -= l.s * dt;
-      l.p += dt * 2;
-      if (l.y < 0) { l.y = 9; l.x = (Math.random() - 0.5) * 40; l.z = (Math.random() - 0.5) * 36; }
-      v.set(l.x + Math.sin(l.p) * 0.4, l.y, l.z + Math.cos(l.p * 0.7) * 0.3);
-      q.setFromEuler(e.set(l.p, l.p * 0.6, 0));
-      mesh.setMatrixAt(i, m.compose(v, q, one));
-    });
-    mesh.instanceMatrix.needsUpdate = true;
-  };
-}
