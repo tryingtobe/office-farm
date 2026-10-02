@@ -21,7 +21,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.VSMShadowMap; // blurred, soft-edged shadows
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.95;
 container.appendChild(renderer.domElement);
@@ -53,7 +53,7 @@ controls.minDistance = 8;
 controls.maxDistance = 55;
 controls.update();
 
-const hemi = new THREE.HemisphereLight('#ffe7c4', '#6b5a2e', 1.4);
+const hemi = new THREE.HemisphereLight('#ffe7c4', '#a8905e', 1.4);
 scene.add(hemi);
 const sun = new THREE.DirectionalLight('#ffd49a', 2.6);
 sun.position.set(-18, 26, 12);
@@ -61,6 +61,8 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 Object.assign(sun.shadow.camera, { left: -28, right: 28, top: 28, bottom: -28, near: 1, far: 80 });
 sun.shadow.bias = -0.0005;
+sun.shadow.radius = 10;
+sun.shadow.blurSamples = 16;
 scene.add(sun);
 const sky = atmosphere(scene, { sun, hemi }, now);
 

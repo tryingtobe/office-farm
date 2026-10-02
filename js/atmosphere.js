@@ -118,8 +118,8 @@ export function atmosphere(scene, { sun, hemi }, env) {
     const a = ((now.hour - 6) / 14) * Math.PI;
     sun.position.set(-Math.cos(a) * 26, 6 + Math.max(0, Math.sin(a)) * 22, 12);
     sun.color.set(d > 0.05 ? '#ffd49a' : '#9fb4ff');
-    sun.intensity = d > 0.05 ? 2.6 * d * (1 - overcast * 0.5) : 0.45;
-    hemi.intensity = 0.35 + 1.05 * d;
+    sun.intensity = d > 0.05 ? 2.1 * d * (1 - overcast * 0.5) : 0.45;
+    hemi.intensity = 0.45 + 1.35 * d; // more sky light and less sun keeps shadows gentle
     hemi.color.set(d > 0.3 ? '#ffe7c4' : '#6b7bb0');
 
     const dark = 1 - d;

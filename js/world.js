@@ -2,10 +2,11 @@
 import * as THREE from 'three';
 import { piece, FACE } from './kit.js';
 import { hash } from './logic.js';
+import { softTree, roundedSlab } from './soft.js';
 
 const rand = seed => (hash(String(seed)) % 10000) / 10000;
 
-// The kit's leaves are one pale colour; give each tree its own colour for the season.
+// Leaf colours for each season; each tree picks one.
 const LEAVES = {
   fall: ['#d9541e', '#e8892a', '#b8321a', '#efae2c', '#c9661f'],
   summer: ['#4f8f3a', '#5fa344', '#3f7d36', '#6aa84f'],
@@ -21,37 +22,34 @@ const GROUND = {
 const PINE = '#2f6b4a';
 let season = 'fall';
 export function setSeason(s) { season = s; }
-const recolored = new Map();
-function recolor(obj, seed) {
-  obj.traverse(o => {
-    if (!o.isMesh) return;
-    const name = o.material.name;
-    const palette = LEAVES[season];
-    const color = name === 'leafsFall' ? palette[hash(String(seed)) % palette.length] : name === 'leafsDark' ? PINE : null;
-    if (!color) return;
-    const key = name + color;
-    if (!recolored.has(key)) {
-      const m = o.material.clone();
-      m.color.set(color);
-      recolored.set(key, m);
-    }
-    o.material = recolored.get(key);
-  });
-  return obj;
-}
-
 // Two rows of five plots south of the square. Each plot opens to a path on its -z side.
 export const PLOT_SPOTS = [7.5, 12].flatMap(z => [-8, -4, 0, 4, 8].map(x => ({ x, z })));
 
+// Gentle rolling hills outside the village; the village itself stays flat.
+export function heightAt(x, z) {
+  const d = Math.hypot(x / 25, z / 23);
+  const ramp = Math.min(1, Math.max(0, (d - 1.1) / 0.6));
+  if (!ramp) return 0;
+  const bumps = Math.sin(x * 0.11 + 1.3) * Math.cos(z * 0.09 - 0.7) + 0.5 * Math.sin(x * 0.05 - z * 0.07);
+  return ramp * (0.9 + bumps * 0.9);
+}
+
 export function ground(scene) {
-  const geo = new THREE.PlaneGeometry(260, 260, 120, 120);
+  const geo = new THREE.PlaneGeometry(260, 260, 130, 130);
+  const pos = geo.attributes.position;
   const colors = [];
-  const c = new THREE.Color();
-  for (let i = 0; i < geo.attributes.position.count; i++) {
-    const n = rand('ground' + i);
-    c.set(GROUND[season][n > 0.85 ? 0 : n > 0.4 ? 1 : 2]);
+  const c = new THREE.Color(), c2 = new THREE.Color();
+  const [light, mid, dark] = GROUND[season];
+  for (let i = 0; i < pos.count; i++) {
+    // the plane is rotated flat later, so its local y is world -z
+    const x = pos.getX(i), z = -pos.getY(i);
+    pos.setZ(i, heightAt(x, z));
+    const n = 0.5 + 0.5 * Math.sin(x * 0.17 + Math.cos(z * 0.13) * 2) * Math.cos(z * 0.15 - x * 0.04);
+    c.set(dark).lerp(c2.set(mid), Math.min(1, n * 1.6));
+    if (n > 0.75) c.lerp(c2.set(light), (n - 0.75) * 3);
     colors.push(c.r, c.g, c.b);
   }
+  geo.computeVertexNormals();
   geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true }));
   mesh.rotation.x = -Math.PI / 2;
@@ -67,16 +65,23 @@ export function ground(scene) {
   scene.add(square);
 }
 
+const PATH_MAT = new THREE.MeshLambertMaterial({ color: '#c9a978' });
 export function path(scene, from, to, width = 1.1) {
   const dx = to.x - from.x, dz = to.z - from.z;
   const len = Math.hypot(dx, dz);
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, len),
-    new THREE.MeshLambertMaterial({ color: '#c9a978' }));
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, len), PATH_MAT);
   mesh.rotation.x = -Math.PI / 2;
   mesh.rotation.z = -Math.atan2(dx, dz) + Math.PI;
   mesh.position.set((from.x + to.x) / 2, 0.008, (from.z + to.z) / 2);
   mesh.receiveShadow = true;
   scene.add(mesh);
+  for (const end of [from, to]) {
+    const cap = new THREE.Mesh(new THREE.CircleGeometry(width / 2, 24), PATH_MAT);
+    cap.rotation.x = -Math.PI / 2;
+    cap.position.set(end.x, 0.008, end.z);
+    cap.receiveShadow = true;
+    scene.add(cap);
+  }
 }
 
 const CROPS = {
@@ -101,7 +106,10 @@ function simpleProp(id) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color));
     m.position.y = y; m.castShadow = true; g.add(m); return m;
   };
-  if (id === 'hay-bale') { box(0.6, 0.35, 0.4, '#e3c45a'); }
+  if (id === 'hay-bale') {
+    const bale = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.5, 20), mat('#e3c45a'));
+    bale.rotation.z = Math.PI / 2; bale.position.y = 0.24; bale.castShadow = true; g.add(bale);
+  }
   if (id === 'scarecrow') {
     box(0.06, 1.1, 0.06, '#8b5a2b');
     box(0.7, 0.06, 0.06, '#8b5a2b', 0.8);
@@ -137,10 +145,7 @@ async function decorPiece(id) {
 export async function plot(person, spot) {
   const g = new THREE.Group();
   g.position.set(spot.x, 0, spot.z);
-  const soil = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.06, 3), new THREE.MeshLambertMaterial({ color: '#6e4a2c' }));
-  soil.position.y = 0.03;
-  soil.receiveShadow = true;
-  g.add(soil);
+  g.add(roundedSlab(3.2, 3, 0.07, 0.55, '#6e4a2c'));
 
   const kinds = person.role === 'gardener' ? GARDEN_CROPS : FARM_CROPS;
   const kind = kinds[person.index % kinds.length];
@@ -185,13 +190,18 @@ export async function orchard(scene, releases, tickets) {
   for (let i = 0; i < count; i++) {
     const x = 14 + (i % 2) * 2.6 + (Math.floor(i / 2) % 2) * 1.3;
     const z = 6 + Math.floor(i / 2) * 2.6;
-    const tree = recolor(await piece(i % 2 ? 'nature/tree_oak_fall' : 'nature/tree_default_fall', { x, z, scale: 2.3 }), 'orchard' + i);
+    const palette = LEAVES[season];
+    const tree = softTree('round', palette[hash('orchard' + i) % palette.length], 3.1, i);
+    const y0 = heightAt(x, z);
+    tree.position.set(x, y0, z);
     scene.add(tree);
+    const { y: cy, r: cr } = tree.userData.crown;
     const mat = fruitPerTree && new THREE.MeshLambertMaterial({ color: fruitColors[i % fruitColors.length] });
     for (let f = 0; f < fruitPerTree; f++) {
       const a = rand(`f${i}-${f}`) * Math.PI * 2;
-      const fruit = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), mat);
-      fruit.position.set(x + Math.cos(a) * 0.62, 1.7 + rand(`h${i}-${f}`) * 1.1, z + Math.sin(a) * 0.62);
+      const up = (rand(`h${i}-${f}`) - 0.35) * 1.2; // mostly on the sides and top of the crown
+      const fruit = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 10), mat);
+      fruit.position.set(x + Math.cos(a) * Math.cos(up) * cr * 1.05, y0 + cy + Math.sin(up) * cr * 1.05, z + Math.sin(a) * Math.cos(up) * cr * 1.05);
       scene.add(fruit);
     }
   }
@@ -205,16 +215,20 @@ export async function scenery(scene) {
     const a = rand('a' + i) * Math.PI * 2;
     const r = 23 + rand('r' + i) * 16;
     const x = Math.cos(a) * r, z = Math.sin(a) * r * 0.9;
-    const kinds = ['tree_pineTallA', 'tree_pineRoundB', 'tree_default_fall', 'tree_fat_fall', 'tree_pineTallC', 'tree_blocks_fall', 'tree_tall_fall'];
+    const kinds = ['pine', 'round', 'round', 'pine', 'tall', 'round'];
     const kind = kinds[hash('k' + i) % kinds.length];
-    jobs.push(piece(`nature/${kind}`, { x, z, scale: 2.4 + rand('s' + i) * 1.2, rot: rand('t' + i) * 6 }).then(o => recolor(o, i)));
+    const palette = kind === 'pine' ? [season === 'winter' ? '#5f8f78' : PINE] : LEAVES[season];
+    const tree = softTree(kind, palette[hash(String(i)) % palette.length], 3.4 + rand('s' + i) * 1.8, i);
+    tree.position.set(x, heightAt(x, z), z);
+    tree.rotation.y = rand('t' + i) * 6;
+    scene.add(tree);
   }
   // rocks, bushes, mushrooms and flowers scattered over the meadow
   const small = ['stone_smallA', 'stone_largeB', 'plant_bushLarge', 'plant_bush', 'mushroom_redGroup', 'flower_redA', 'flower_yellowB', 'flower_purpleC', 'log', 'mushroom_tanGroup'];
   for (let i = 0; i < 110; i++) {
     const x = (rand('x' + i) - 0.5) * 44, z = (rand('z' + i) - 0.5) * 40;
     if (Math.abs(x) < 19 && z > -19 && z < 16) continue; // keep the village clear
-    jobs.push(piece(`nature/${small[i % small.length]}`, { x, z, scale: 1.8, rot: rand('q' + i) * 6 }));
+    jobs.push(piece(`nature/${small[i % small.length]}`, { x, y: heightAt(x, z), z, scale: 1.8, rot: rand('q' + i) * 6 }));
   }
   (await Promise.all(jobs)).forEach(o => scene.add(o));
 }

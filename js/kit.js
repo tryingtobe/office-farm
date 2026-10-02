@@ -2,6 +2,10 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// Nature models look softer with smooth shading. Fences and blocky kit parts keep their crisp edges.
+const SMOOTH = /^nature\/(?!fence|cliff|bridge|tree_blocks)/;
 
 const loader = new GLTFLoader();
 const cache = new Map();
@@ -15,6 +19,12 @@ export function load(path) {
         o.receiveShadow = true;
         // some kit materials are fully metallic, which renders black without an environment map
         for (const m of [].concat(o.material)) { m.metalness = 0; m.roughness = 1; }
+        if (SMOOTH.test(path)) {
+          const geo = o.geometry.clone();
+          geo.deleteAttribute('normal');
+          o.geometry = mergeVertices(geo, 1e-3);
+          o.geometry.computeVertexNormals();
+        }
       });
       return gltf;
     }));

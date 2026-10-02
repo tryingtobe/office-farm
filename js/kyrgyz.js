@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { piece } from './kit.js';
 import { hash } from './logic.js';
+import { bellGeometry } from './soft.js';
 
 const rand = seed => (hash(String(seed)) % 10000) / 10000;
 const lambert = (color, extra = {}) => new THREE.MeshLambertMaterial({ color, ...extra });
@@ -21,28 +22,30 @@ function mesh(geo, mat, x = 0, y = 0, z = 0) {
 export function mountains(scene, season, weather) {
   // far away and hazy blue; they ignore the fog except on foggy days, so the range is always on the horizon
   const fog = weather === 'fog';
-  const rock = lambert(season === 'winter' ? '#a9b8d6' : '#6f82b0', { flatShading: true, fog, emissive: '#2c3c6e', emissiveIntensity: 0.6 });
-  const snow = lambert('#f7fbff', { flatShading: true, fog, emissive: '#8090b0', emissiveIntensity: 0.3 });
+  const rock = lambert(season === 'winter' ? '#a9b8d6' : '#6f82b0', { fog, emissive: '#2c3c6e', emissiveIntensity: 0.6 });
+  const snow = lambert('#f7fbff', { fog, emissive: '#8090b0', emissiveIntensity: 0.3 });
   for (let i = 0; i < 26; i++) {
     const a = Math.PI * (1.04 + (i / 26) * 0.92 + rand('ma' + i) * 0.03); // an arc behind the village (north, -z)
     const r = 120 + rand('mr' + i) * 35;
     const height = 26 + rand('mh' + i) * 26;
-    const radius = 15 + rand('mw' + i) * 9;
+    const radius = 17 + rand('mw' + i) * 10;
     const g = new THREE.Group();
-    g.add(mesh(new THREE.ConeGeometry(radius, height, 6), rock, 0, height / 2, 0));
-    const cap = season === 'winter' ? 0.65 : 0.5;
-    g.add(mesh(new THREE.ConeGeometry(radius * cap * 1.02, height * cap, 6), snow, 0, height - (height * cap) / 2 + 0.05, 0));
+    g.add(mesh(bellGeometry(radius, height), rock));
+    // the snow cap is the top part of the same soft shape, pushed out a little
+    const cap = season === 'winter' ? 0.45 : 0.3;
+    g.add(mesh(bellGeometry(radius, height, cap, 0.015), snow));
     g.position.set(Math.cos(a) * r, -1, Math.sin(a) * r * 0.85);
+    g.scale.z = 0.7 + rand('mz' + i) * 0.5;
     g.rotation.y = rand('mt' + i) * Math.PI;
     scene.add(g);
   }
   // rolling foothills between the forest and the mountains
   const hillColor = { fall: '#9a9a45', summer: '#6f9e3e', spring: '#83b74b', winter: '#e9eff4' }[season];
-  const hill = lambert(hillColor, { flatShading: true });
+  const hill = lambert(hillColor);
   for (let i = 0; i < 22; i++) {
     const a = rand('ha' + i) * Math.PI * 2;
     const r = 55 + rand('hr' + i) * 35;
-    const h = mesh(new THREE.SphereGeometry(1, 9, 6), hill, Math.cos(a) * r, -2, Math.sin(a) * r);
+    const h = mesh(new THREE.SphereGeometry(1, 28, 16), hill, Math.cos(a) * r, -2, Math.sin(a) * r);
     h.scale.set(14 + rand('hw' + i) * 14, 5 + rand('hh' + i) * 6, 12 + rand('hd' + i) * 12);
     h.castShadow = false;
     scene.add(h);
@@ -111,25 +114,26 @@ function horseMesh(coat) {
   const g = new THREE.Group();
   const body = lambert(coat);
   const dark = lambert('#2b1d14');
-  g.add(mesh(new THREE.BoxGeometry(0.42, 0.42, 1.0), body, 0, 0.78, 0));
+  const capsule = (r, len, mat, x, y, z, tilt = 0) => {
+    const m = mesh(new THREE.CapsuleGeometry(r, len, 6, 12), mat, x, y, z);
+    m.rotation.x = tilt;
+    return m;
+  };
+  g.add(capsule(0.22, 0.58, body, 0, 0.78, 0, Math.PI / 2));
   const neck = new THREE.Group();
   neck.position.set(0, 0.95, 0.42);
-  const neckMesh = mesh(new THREE.BoxGeometry(0.24, 0.55, 0.26), body, 0, 0.22, 0.08);
-  neckMesh.rotation.x = 0.5;
-  neck.add(neckMesh);
-  neck.add(mesh(new THREE.BoxGeometry(0.22, 0.24, 0.48), body, 0, 0.48, 0.3));
-  neck.add(mesh(new THREE.BoxGeometry(0.06, 0.4, 0.3), dark, 0, 0.3, -0.04)); // mane
-  for (const x of [-0.07, 0.07]) neck.add(mesh(new THREE.BoxGeometry(0.05, 0.1, 0.05), body, x, 0.64, 0.12));
+  neck.add(capsule(0.12, 0.34, body, 0, 0.22, 0.08, 0.5));
+  neck.add(capsule(0.11, 0.26, body, 0, 0.48, 0.3, Math.PI / 2)); // head
+  neck.add(capsule(0.035, 0.3, dark, 0, 0.3, -0.04, 0.5)); // mane
+  for (const x of [-0.07, 0.07]) neck.add(mesh(new THREE.ConeGeometry(0.035, 0.12, 8), body, x, 0.64, 0.14));
   g.add(neck);
-  const tail = mesh(new THREE.BoxGeometry(0.08, 0.45, 0.08), dark, 0, 0.72, -0.56);
-  tail.rotation.x = -0.4;
-  g.add(tail);
+  g.add(capsule(0.045, 0.36, dark, 0, 0.7, -0.56, -0.4)); // tail
   const legs = [];
   for (const [x, z] of [[-0.14, 0.38], [0.14, 0.38], [-0.14, -0.38], [0.14, -0.38]]) {
     const leg = new THREE.Group();
     leg.position.set(x, 0.6, z);
-    leg.add(mesh(new THREE.BoxGeometry(0.11, 0.6, 0.11), body, 0, -0.3, 0));
-    leg.add(mesh(new THREE.BoxGeometry(0.12, 0.08, 0.12), dark, 0, -0.58, 0));
+    leg.add(capsule(0.055, 0.46, body, 0, -0.29, 0));
+    leg.add(mesh(new THREE.CylinderGeometry(0.06, 0.065, 0.07, 12), dark, 0, -0.57, 0));
     g.add(leg);
     legs.push(leg);
   }
