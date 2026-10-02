@@ -5,57 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Office Farm 🍎</title>
   <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    { "imports": { "three": "./lib/three.module.min.js", "three/addons/": "./lib/addons/" } }
+  </script>
 </head>
 <body>
+  <div id="world"></div>
+  <div id="loading">🌾 Planting the farm…</div>
+
   <header class="topbar">
-    <h1>🌾 Office Farm <span class="season">Fall season</span></h1>
+    <h1>🌾 Office Farm <span class="season">Fall season</span><span id="sample" class="sample hidden">Sample data</span></h1>
     <div class="stats">
       <span id="team-coins">🪙 0</span>
       <span id="updated">Updated: —</span>
+      <button id="toggle" class="toggle" title="Show or hide the panel">☰</button>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="farm-wrap">
-      <canvas id="farm" width="960" height="600" aria-label="The office farm"></canvas>
-      <p class="hint">Click a plot to see that farmer.</p>
-    </section>
+  <aside class="sidebar" id="sidebar">
+    <nav class="tabs">
+      <button class="tab active" data-tab="board">🏆 Board</button>
+      <button class="tab" data-tab="town">🏘️ Town</button>
+      <button class="tab" data-tab="shop">🛒 Shop</button>
+      <button class="tab" data-tab="feed">📜 Activity</button>
+      <button class="tab" data-tab="rules">🌱 Rules</button>
+    </nav>
 
-    <aside class="sidebar">
-      <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="board">🏆 Board</button>
-        <button class="tab" data-tab="shop">🛒 Shop</button>
-        <button class="tab" data-tab="feed">📜 Activity</button>
-        <button class="tab" data-tab="rules">🌱 How it grows</button>
-      </nav>
+    <div class="panel active" id="panel-board">
+      <div id="selected" class="card hidden"></div>
+      <ol id="leaderboard" class="leaderboard"></ol>
+    </div>
 
-      <div class="panel active" id="panel-board">
-        <div id="selected" class="card hidden"></div>
-        <ol id="leaderboard" class="leaderboard"></ol>
-      </div>
+    <div class="panel" id="panel-town">
+      <div id="buildings"></div>
+    </div>
 
-      <div class="panel" id="panel-shop">
-        <p class="note">🤖 <b>Auto-shop:</b> each person has a wishlist. When they have enough coins, they buy the next item on it automatically.</p>
-        <div id="shop-items" class="shop"></div>
-      </div>
+    <div class="panel" id="panel-shop">
+      <p class="note">🤖 <b>Auto-shop:</b> each person has a wishlist. When they have enough coins, they buy the next item on it automatically.</p>
+      <div id="shop-items" class="shop"></div>
+    </div>
 
-      <div class="panel" id="panel-feed">
-        <ul id="feed" class="feed"></ul>
-      </div>
+    <div class="panel" id="panel-feed">
+      <ul id="feed" class="feed"></ul>
+    </div>
 
-      <div class="panel" id="panel-rules">
-        <ul class="rules">
-          <li><b>💧 Standup</b> waters your crops, so they grow. <em>+30 coins, once per day</em></li>
-          <li><b>🌱 Merged pull request</b> plants a new crop in a farmer's plot. <em>+15 coins</em></li>
-          <li><b>🧺 Done Jira ticket</b> fills a harvest basket. Gardeners also plant a new flower bed. <em>+50 coins</em></li>
-          <li><b>🔨 Builders</b> add a step to the office house with every standup, PR or ticket.</li>
-          <li><b>🎉 Production release</b> plants a new fruit tree for the whole farm. <em>+20 coins for everyone</em></li>
-        </ul>
-        <p class="note">Coins are spent automatically in the 🛒 Shop on hats, tools and decorations. They appear on the farm.</p>
-      </div>
-    </aside>
-  </main>
+    <div class="panel" id="panel-rules">
+      <ul class="rules">
+        <li><b>💧 Standup</b> waters your crops, so they grow. <em>+30 coins, once per day</em></li>
+        <li><b>🌱 Merged pull request</b> plants a new crop in a farmer's field. <em>+15 coins</em></li>
+        <li><b>🧺 Done Jira ticket</b> sends a harvest to the Fridge. Gardeners also plant a new flower. <em>+50 coins</em></li>
+        <li><b>🎉 Production release</b> plants a new fruit tree. <em>+20 coins for everyone</em></li>
+        <li><b>🔨 Builders</b> build the Office with every standup, PR or ticket.</li>
+      </ul>
+      <p class="note">Each building grows from one kind of work. See the 🏘️ Town tab.</p>
+      <p class="note">🖱️ Drag to turn the camera, scroll to zoom, right-drag to move. Click a person, field or building.</p>
+    </div>
+  </aside>
 
-  <script src="game.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
