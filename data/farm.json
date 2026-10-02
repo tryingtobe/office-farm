@@ -1,8 +1,8 @@
 {
-  "sample": true,
-  "updated": "2026-10-02T08:00:00Z",
-  "since": "2026-09-21",
-  "releases": 1,
+  "sample": false,
+  "updated": "2026-10-02T09:26:11Z",
+  "since": "2026-10-02",
+  "releases": 0,
   "team": [
     {
       "id": "aman",
@@ -10,9 +10,9 @@
       "role": "farmer",
       "look": "male",
       "counts": {
-        "prs": 9,
-        "standups": 9,
-        "tickets": 6
+        "standups": 1,
+        "prs": 1,
+        "tickets": 1
       }
     },
     {
@@ -21,9 +21,9 @@
       "role": "farmer",
       "look": "male",
       "counts": {
-        "prs": 6,
-        "standups": 8,
-        "tickets": 4
+        "standups": 1,
+        "prs": 4,
+        "tickets": 2
       }
     },
     {
@@ -32,9 +32,9 @@
       "role": "farmer",
       "look": "female",
       "counts": {
-        "prs": 3,
-        "standups": 9,
-        "tickets": 2
+        "standups": 1,
+        "prs": 0,
+        "tickets": 0
       }
     },
     {
@@ -43,9 +43,9 @@
       "role": "farmer",
       "look": "male",
       "counts": {
-        "prs": 1,
-        "standups": 3,
-        "tickets": 1
+        "standups": 0,
+        "prs": 0,
+        "tickets": 0
       }
     },
     {
@@ -54,9 +54,9 @@
       "role": "farmer",
       "look": "male",
       "counts": {
-        "prs": 2,
-        "standups": 8,
-        "tickets": 2
+        "standups": 1,
+        "prs": 0,
+        "tickets": 0
       }
     },
     {
@@ -65,9 +65,9 @@
       "role": "farmer",
       "look": "male",
       "counts": {
-        "prs": 2,
-        "standups": 9,
-        "tickets": 1
+        "standups": 1,
+        "prs": 0,
+        "tickets": 0
       }
     },
     {
@@ -76,9 +76,9 @@
       "role": "gardener",
       "look": "male",
       "counts": {
+        "standups": 1,
         "prs": 0,
-        "standups": 9,
-        "tickets": 7
+        "tickets": 1
       }
     },
     {
@@ -87,9 +87,9 @@
       "role": "gardener",
       "look": "male",
       "counts": {
+        "standups": 0,
         "prs": 0,
-        "standups": 8,
-        "tickets": 5
+        "tickets": 0
       }
     },
     {
@@ -98,9 +98,9 @@
       "role": "gardener",
       "look": "female",
       "counts": {
+        "standups": 0,
         "prs": 0,
-        "standups": 9,
-        "tickets": 4
+        "tickets": 0
       }
     },
     {
@@ -109,9 +109,9 @@
       "role": "gardener",
       "look": "male",
       "counts": {
+        "standups": 0,
         "prs": 0,
-        "standups": 4,
-        "tickets": 2
+        "tickets": 0
       }
     },
     {
@@ -120,9 +120,9 @@
       "role": "builder",
       "look": "female",
       "counts": {
+        "standups": 0,
         "prs": 0,
-        "standups": 5,
-        "tickets": 3
+        "tickets": 0
       }
     },
     {
@@ -131,567 +131,102 @@
       "role": "builder",
       "look": "female",
       "counts": {
+        "standups": 0,
         "prs": 0,
-        "standups": 4,
-        "tickets": 2
+        "tickets": 0
       }
     }
   ],
   "events": [
     {
-      "at": "2026-10-02T11:52:00Z",
-      "who": "aisulu",
-      "type": "ticket"
+      "at": "2026-10-02T09:13:31Z",
+      "who": "aman",
+      "type": "ticket",
+      "ref": "7ced386cff3c"
     },
     {
-      "at": "2026-10-02T11:45:00Z",
+      "at": "2026-10-02T08:56:09Z",
+      "who": "alymbek",
+      "type": "ticket",
+      "ref": "f594f5b1f8be"
+    },
+    {
+      "at": "2026-10-02T08:55:39Z",
+      "who": "alymbek",
+      "type": "ticket",
+      "ref": "4d345164be02"
+    },
+    {
+      "at": "2026-10-02T08:51:09Z",
+      "who": "tima",
+      "type": "ticket",
+      "ref": "3ec514d1a4d8"
+    },
+    {
+      "at": "2026-10-02T06:25:51Z",
+      "who": "alymbek",
+      "type": "pr",
+      "ref": "dd78533a6bee"
+    },
+    {
+      "at": "2026-10-02T06:20:40Z",
+      "who": "aisulu",
+      "type": "standup",
+      "ref": "886f79e908eb"
+    },
+    {
+      "at": "2026-10-02T06:10:22Z",
+      "who": "sasha",
+      "type": "standup",
+      "ref": "2e8e1d457de5"
+    },
+    {
+      "at": "2026-10-02T05:58:17Z",
+      "who": "alymbek",
+      "type": "pr",
+      "ref": "31585c108607"
+    },
+    {
+      "at": "2026-10-02T05:58:17Z",
+      "who": "alymbek",
+      "type": "pr",
+      "ref": "579165ab5ff4"
+    },
+    {
+      "at": "2026-10-02T05:58:11Z",
+      "who": "alymbek",
+      "type": "pr",
+      "ref": "f18cdf0bc89c"
+    },
+    {
+      "at": "2026-10-02T05:58:11Z",
+      "who": "aman",
+      "type": "pr",
+      "ref": "7a43e86b976c"
+    },
+    {
+      "at": "2026-10-02T03:41:28Z",
       "who": "garry",
-      "type": "pr"
+      "type": "standup",
+      "ref": "b9be6af8e894"
     },
     {
-      "at": "2026-10-02T11:21:00Z",
+      "at": "2026-10-02T03:40:45Z",
       "who": "aman",
-      "type": "ticket"
+      "type": "standup",
+      "ref": "7f3da80b4f30"
     },
     {
-      "at": "2026-10-02T10:16:00Z",
-      "who": "aisulu",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-02T09:56:00Z",
-      "who": "urmat",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-02T08:11:00Z",
+      "at": "2026-10-02T03:35:04Z",
       "who": "tima",
-      "type": "ticket"
+      "type": "standup",
+      "ref": "6ae9aeec6d70"
     },
     {
-      "at": "2026-10-02T08:09:00Z",
+      "at": "2026-10-02T03:28:53Z",
       "who": "alymbek",
-      "type": "pr"
-    },
-    {
-      "at": "2026-10-02T08:07:00Z",
-      "who": "aaron",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-02T07:39:00Z",
-      "who": "aiym",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-02T07:13:00Z",
-      "who": "garry",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-02T04:50:00Z",
-      "who": "garry",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T04:32:00Z",
-      "who": "aman",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T04:13:00Z",
-      "who": "daniel",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T04:08:00Z",
-      "who": "aaron",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T04:03:00Z",
-      "who": "alymbek",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T04:01:00Z",
-      "who": "urmat",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T03:53:00Z",
-      "who": "sasha",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T03:29:00Z",
-      "who": "elaine",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T03:11:00Z",
-      "who": "tima",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T03:09:00Z",
-      "who": "aisulu",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T03:05:00Z",
-      "who": "aiym",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-02T03:00:00Z",
-      "who": "chynara",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T11:54:00Z",
-      "who": "tima",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T11:23:00Z",
-      "who": "alymbek",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T10:54:00Z",
-      "who": "urmat",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T10:52:00Z",
-      "who": "elaine",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T09:48:00Z",
-      "who": "aman",
-      "type": "pr"
-    },
-    {
-      "at": "2026-10-01T09:42:00Z",
-      "who": "sasha",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T09:34:00Z",
-      "who": "aman",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T08:50:00Z",
-      "who": "chynara",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T08:40:00Z",
-      "who": "daniel",
-      "type": "pr"
-    },
-    {
-      "at": "2026-10-01T08:29:00Z",
-      "who": "alymbek",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T08:04:00Z",
-      "who": "urmat",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T07:13:00Z",
-      "who": "urmat",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T06:53:00Z",
-      "who": "alymbek",
-      "type": "pr"
-    },
-    {
-      "at": "2026-10-01T06:34:00Z",
-      "who": "alymbek",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T06:26:00Z",
-      "who": "aisulu",
-      "type": "pr"
-    },
-    {
-      "at": "2026-10-01T06:26:00Z",
-      "who": "aiym",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-10-01T06:13:00Z",
-      "who": "sasha",
-      "type": "pr"
-    },
-    {
-      "at": "2026-10-01T05:40:00Z",
-      "who": "aman",
-      "type": "pr"
-    },
-    {
-      "at": "2026-10-01T04:54:00Z",
-      "who": "sasha",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T04:21:00Z",
-      "who": "urmat",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T04:04:00Z",
-      "who": "aisulu",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T04:02:00Z",
-      "who": "garry",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:47:00Z",
-      "who": "aaron",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:44:00Z",
-      "who": "aman",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:42:00Z",
-      "who": "tima",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:24:00Z",
-      "who": "chynara",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:24:00Z",
-      "who": "elaine",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:11:00Z",
-      "who": "alymbek",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:04:00Z",
-      "who": "aiym",
-      "type": "standup"
-    },
-    {
-      "at": "2026-10-01T03:00:00Z",
-      "who": "daniel",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T11:47:00Z",
-      "who": "aman",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-30T11:37:00Z",
-      "who": "alymbek",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-30T10:39:00Z",
-      "who": "elaine",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-30T08:45:00Z",
-      "who": "tima",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-30T07:31:00Z",
-      "who": "alymbek",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-30T06:42:00Z",
-      "who": "garry",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-30T06:21:00Z",
-      "who": "alymbek",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-30T05:54:00Z",
-      "who": "aisulu",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-30T04:43:00Z",
-      "who": "tima",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T04:33:00Z",
-      "who": "elaine",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T04:31:00Z",
-      "who": "aman",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T04:30:00Z",
-      "who": "alymbek",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T04:29:00Z",
-      "who": "urmat",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T04:06:00Z",
-      "who": "aisulu",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T04:02:00Z",
-      "who": "aiym",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T03:58:00Z",
-      "who": "chynara",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T03:53:00Z",
-      "who": "sasha",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T03:40:00Z",
-      "who": "garry",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T03:14:00Z",
-      "who": "daniel",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-30T03:03:00Z",
-      "who": "aaron",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T11:58:00Z",
-      "who": "tima",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T11:45:00Z",
-      "who": "chynara",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T11:32:00Z",
-      "who": "aman",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T11:13:00Z",
-      "who": "daniel",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T10:19:00Z",
-      "who": "aman",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T09:10:00Z",
-      "who": "aaron",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T08:11:00Z",
-      "who": "urmat",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T08:03:00Z",
-      "who": "sasha",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-29T07:41:00Z",
-      "who": "aman",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-29T07:39:00Z",
-      "who": "alymbek",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-29T04:47:00Z",
-      "who": "elaine",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T04:42:00Z",
-      "who": "aiym",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T04:32:00Z",
-      "who": "chynara",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T04:30:00Z",
-      "who": "urmat",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T04:23:00Z",
-      "who": "aaron",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T04:20:00Z",
-      "who": "tima",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T03:54:00Z",
-      "who": "garry",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T03:46:00Z",
-      "who": "aisulu",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T03:28:00Z",
-      "who": "sasha",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T03:16:00Z",
-      "who": "alymbek",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-29T03:12:00Z",
-      "who": "aman",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T11:33:00Z",
-      "who": "sasha",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-28T11:12:00Z",
-      "who": "aisulu",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-28T09:55:00Z",
-      "who": "aiym",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-28T09:07:00Z",
-      "who": "tima",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-28T08:54:00Z",
-      "who": "aman",
-      "type": "pr"
-    },
-    {
-      "at": "2026-09-28T07:25:00Z",
-      "who": "aman",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-28T07:05:00Z",
-      "who": "chynara",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-28T05:11:00Z",
-      "who": "aiym",
-      "type": "ticket"
-    },
-    {
-      "at": "2026-09-28T04:51:00Z",
-      "who": "alymbek",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:54:00Z",
-      "who": "aman",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:52:00Z",
-      "who": "sasha",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:52:00Z",
-      "who": "tima",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:44:00Z",
-      "who": "aiym",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:19:00Z",
-      "who": "aisulu",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:16:00Z",
-      "who": "chynara",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:09:00Z",
-      "who": "urmat",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-28T03:01:00Z",
-      "who": "garry",
-      "type": "standup"
-    },
-    {
-      "at": "2026-09-24T10:00:00Z",
-      "who": "team",
-      "type": "release"
+      "type": "standup",
+      "ref": "55062a32e73b"
     }
   ]
 }
