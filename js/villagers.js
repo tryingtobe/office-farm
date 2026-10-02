@@ -11,6 +11,29 @@ import { dress } from './attire.js';
 const MODELS = { female: ['a', 'b', 'c', 'd', 'e', 'f'], male: ['a', 'b', 'c', 'd', 'e', 'f'] };
 // A specific character for someone (black straight hair and an East Asian look for Aisulu)
 const MODEL_FOR = { aisulu: 'female-e' };
+// A different skin tone for someone: a column of the character colour map (15 = light tan, like Aisulu)
+const SKIN_FOR = { aman: 15, urmat: 15 };
+
+// The characters share one colour map made of 16 colour columns; skin is a column in the bottom row.
+// Recolour the skin by moving its UVs to another column, on this model only.
+export function setSkin(model, column) {
+  const col = (u, v) => (Math.floor(v * 4) === 3 ? Math.floor(u * 16) : -1);
+  const head = model.getObjectByName('head-mesh');
+  if (!head) return;
+  // the skin is the most used bottom-row colour of the head
+  const uv = head.geometry.attributes.uv;
+  const counts = {};
+  for (let i = 0; i < uv.count; i++) { const c = col(uv.getX(i), uv.getY(i)); if (c >= 0) counts[c] = (counts[c] ?? 0) + 1; }
+  const skin = +Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+  if (skin === column) return;
+  model.traverse(o => {
+    if (!o.isMesh || !o.geometry.attributes.uv) return;
+    o.geometry = o.geometry.clone();
+    const a = o.geometry.attributes.uv;
+    for (let i = 0; i < a.count; i++) if (col(a.getX(i), a.getY(i)) === skin) a.setX(i, a.getX(i) + (column - skin) / 16);
+    a.needsUpdate = true;
+  });
+}
 const WALK = 1.4;
 const RUN = 2.8;
 const SCALE = 1.4;
@@ -225,6 +248,7 @@ export async function makeVillager(person, places, week, env) {
   const variants = MODELS[look];
   const model = await piece(`people/character-${MODEL_FOR[person.id] ?? `${look}-${variants[person.lookIndex % variants.length]}`}`, { scale: SCALE });
   model.updateMatrixWorld(true);
+  if (SKIN_FOR[person.id]) setSkin(model, SKIN_FOR[person.id]);
   // Kyrgyz traditional clothes; hats bought in the shop show as richer embroidery
   dress(model, { look, id: person.id, role: person.role, hatTier: person.owned.filter(it => it.kind === 'hat').length });
   const arm = model.getObjectByName('arm-right');
