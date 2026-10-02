@@ -53,6 +53,26 @@ export function workingDays(since, updated) {
   return n;
 }
 
+// Colours someone can pick for their clothes (see the "farm" Slack commands in the README).
+export const COLOURS = {
+  red: '#c8371d', blue: '#1f5fa8', green: '#2a7f62', purple: '#6a3d9a', orange: '#d9822b', pink: '#d0507a',
+  teal: '#14535e', maroon: '#7a1f3d', navy: '#1f3f7a', gold: '#e8b923', white: '#f4efe4', black: '#2b2b2b',
+};
+
+// Own choices: buy the listed items in order. Anything unknown, already owned or not affordable is skipped,
+// so a wrong entry in farm.json can never give free items.
+export function chosenShop(buys, earned) {
+  let balance = earned;
+  const owned = [];
+  for (const id of buys) {
+    const item = SHOP.find(it => it.id === id);
+    if (!item || owned.includes(item) || balance < item.cost) continue;
+    balance -= item.cost;
+    owned.push(item);
+  }
+  return { owned, balance, savingFor: null };
+}
+
 // Auto-shop: buy wishlist items in order; stop at the first one you can't afford and save for it.
 export function autoShop(person, earned) {
   const wishlist = [...SHOP].sort((a, b) =>
@@ -72,7 +92,8 @@ export function buildPeople(data) {
   const elderDays = workingDays(data.since, data.updated);
   return data.team.map((p, i) => {
     const earned = earnedCoins(p.counts, data.releases, p.role === 'elder' ? elderDays : 0);
-    const shop = autoShop(p, earned);
+    // people with their own shop list choose for themselves; everyone else uses the auto-shop
+    const shop = Array.isArray(p.shop?.buys) ? chosenShop(p.shop.buys, earned) : autoShop(p, earned);
     const latest = kind => [...shop.owned].reverse().find(it => it.kind === kind);
     return {
       ...p,

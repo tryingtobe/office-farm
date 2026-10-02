@@ -3,7 +3,7 @@
 // Women: a long dress, a velvet vest (chyptama) and a round cap with an owl feather (uki).
 // The village elder wears an elechek (white headdress). Sizes are in character units, before SCALE.
 import * as THREE from 'three';
-import { hash } from './logic.js';
+import { hash, COLOURS } from './logic.js';
 
 const mats = new Map();
 const mat = (color, side = THREE.FrontSide) => {
@@ -106,7 +106,8 @@ function elechek(head) {
 }
 
 /**
- * Dress a character model. person: { look: 'female'|'male', id, role, hatTier }
+ * Dress a character model. person: { look: 'female'|'male', id, role, hatTier, style }
+ * style (optional, chosen by the person): { outfit, vest, cap } colour names from COLOURS
  * Returns nothing; the clothes are children of the model's bones, so they move with the animations.
  */
 export function dress(model, person) {
@@ -115,12 +116,13 @@ export function dress(model, person) {
   if (!torso || !head) return;
   const h = hash(person.id + 'attire');
   const trim = TRIM[Math.min(TRIM.length - 1, person.hatTier ?? 0)];
+  const pick = (key, fallback) => COLOURS[person.style?.[key]] ?? fallback;
   if (person.look === 'female') {
-    longDress(torso, DRESS[h % DRESS.length], VELVET[(h >> 3) % VELVET.length]);
+    longDress(torso, pick('outfit', DRESS[h % DRESS.length]), pick('vest', VELVET[(h >> 3) % VELVET.length]));
     if (person.role === 'elder') elechek(head);
-    else ukiCap(head, VELVET[(h >> 5) % VELVET.length], trim);
+    else ukiCap(head, pick('cap', VELVET[(h >> 5) % VELVET.length]), trim);
   } else {
-    chapan(torso, VELVET[h % VELVET.length]);
+    chapan(torso, pick('outfit', VELVET[h % VELVET.length]));
     akKalpak(head, trim);
   }
 }

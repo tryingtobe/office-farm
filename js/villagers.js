@@ -250,7 +250,7 @@ export async function makeVillager(person, places, week, env) {
   model.updateMatrixWorld(true);
   if (SKIN_FOR[person.id]) setSkin(model, SKIN_FOR[person.id]);
   // Kyrgyz traditional clothes; hats bought in the shop show as richer embroidery
-  dress(model, { look, id: person.id, role: person.role, hatTier: person.owned.filter(it => it.kind === 'hat').length });
+  dress(model, { look, id: person.id, role: person.role, hatTier: person.owned.filter(it => it.kind === 'hat').length, style: person.shop?.style });
   const arm = model.getObjectByName('arm-right');
   if (arm && person.tool) {
     const tool = toolMesh(person.tool.id);

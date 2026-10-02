@@ -33,7 +33,7 @@ function eventText(e, people) {
 
 export function showPerson(p, releases) {
   const items = p.owned.map(it => `${it.icon} ${it.name}`).join(', ') || 'Nothing yet';
-  const saving = p.savingFor
+  const saving = p.shop?.buys ? 'Chooses their own items 🛍️' : p.savingFor
     ? `${p.savingFor.icon} ${p.savingFor.name} (${p.savingFor.cost - p.balance} more 🪙)`
     : 'Bought everything! 🎉';
   $('selected').innerHTML = `

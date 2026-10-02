@@ -101,6 +101,10 @@
         "standups": 0,
         "prs": 0,
         "tickets": 0
+      },
+      "shop": {
+        "buys": [],
+        "style": {}
       }
     },
     {
