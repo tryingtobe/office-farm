@@ -1,6 +1,6 @@
 {
   "sample": false,
-  "updated": "2026-10-02T10:15:00Z",
+  "updated": "2026-10-02T11:12:38Z",
   "since": "2026-10-02",
   "releases": 0,
   "team": [
@@ -23,7 +23,7 @@
       "counts": {
         "standups": 1,
         "prs": 4,
-        "tickets": 3
+        "tickets": 6
       }
     },
     {
@@ -45,7 +45,7 @@
       "counts": {
         "standups": 0,
         "prs": 0,
-        "tickets": 0
+        "tickets": 1
       }
     },
     {
@@ -66,7 +66,7 @@
       "look": "male",
       "counts": {
         "standups": 1,
-        "prs": 0,
+        "prs": 2,
         "tickets": 0
       }
     },
@@ -78,7 +78,7 @@
       "counts": {
         "standups": 1,
         "prs": 0,
-        "tickets": 1
+        "tickets": 2
       }
     },
     {
@@ -153,6 +153,48 @@
     }
   ],
   "events": [
+    {
+      "at": "2026-10-02T10:40:57Z",
+      "who": "garry",
+      "type": "pr",
+      "ref": "2348e648b73c"
+    },
+    {
+      "at": "2026-10-02T10:40:57Z",
+      "who": "garry",
+      "type": "pr",
+      "ref": "23ade8aa4650"
+    },
+    {
+      "at": "2026-10-02T10:26:20Z",
+      "who": "alymbek",
+      "type": "ticket",
+      "ref": "38f2c9e8a699"
+    },
+    {
+      "at": "2026-10-02T10:25:41Z",
+      "who": "alymbek",
+      "type": "ticket",
+      "ref": "61a2dd940f00"
+    },
+    {
+      "at": "2026-10-02T10:25:16Z",
+      "who": "alymbek",
+      "type": "ticket",
+      "ref": "5295ce35abf9"
+    },
+    {
+      "at": "2026-10-02T10:25:00Z",
+      "who": "tima",
+      "type": "ticket",
+      "ref": "bfce3d74255d"
+    },
+    {
+      "at": "2026-10-02T10:24:41Z",
+      "who": "daniel",
+      "type": "ticket",
+      "ref": "39a508d6a450"
+    },
     {
       "at": "2026-10-02T10:03:47Z",
       "who": "alymbek",
