@@ -9,6 +9,7 @@ import { ground, path, plot, orchard, scenery, leaves, PLOT_SPOTS } from './worl
 import { makeVillager } from './villagers.js';
 import { setupUI, renderSidebar, showPerson, showBuilding } from './ui.js';
 import { piece } from './kit.js';
+import { fireworks, updateFireworks } from './fireworks.js';
 
 const container = document.getElementById('world');
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -94,12 +95,12 @@ async function build(data) {
   const square = await piece('town/fountain-round-detail', { scale: 1.2 });
   scene.add(square);
 
-  const doors = [];
+  const doors = {};
   for (const b of buildings) {
     const g = await buildBuilding(b);
     scene.add(g);
     pickables.push(g);
-    doors.push(g.userData.door);
+    doors[b.id] = g.userData.door;
     path(scene, { x: 0, z: 0 }, g.userData.door);
     label(`${b.icon} ${b.name}<small>level ${b.level}/4</small>`, 'building-label', g, g.userData.labelHeight);
   }
@@ -122,15 +123,17 @@ async function build(data) {
     g.add(sign);
     label(`${p.name} · 🪙 ${p.earned}`, '', sign, 0.5);
   }
-  const office = scene.children.find(o => o.userData.pick?.id === 'office');
-  for (const p of people.filter(p => p.role === 'builder')) homes[p.id] = office.userData.door;
+  for (const p of people.filter(p => p.role === 'builder')) homes[p.id] = doors.office;
 
   const totalTickets = people.reduce((s, p) => s + p.counts.tickets, 0);
   await orchard(scene, data.releases, totalTickets);
   await scenery(scene);
 
+  const weekAgo = new Date(Date.parse(data.updated) - 7 * 864e5).toISOString();
   for (const p of people) {
-    const v = await makeVillager(p, homes[p.id], doors);
+    const week = data.events.filter(e => e.who === p.id && eventTime(e) >= weekAgo).reverse();
+    const places = { ...doors, home: homes[p.id], buildings: Object.values(doors) };
+    const v = await makeVillager(p, places, week);
     v.label = label(p.name, 'person-label hidden', v.model, 1.2);
     scene.add(v.model);
     pickables.push(v.model);
@@ -138,6 +141,38 @@ async function build(data) {
   }
 
   renderSidebar(farm, people, buildings, pick);
+}
+
+const eventTime = e => e.at ?? e.date;
+const SEEN_KEY = 'officeFarm.seenUntil';
+
+// Celebrate what happened since this browser last looked. First visit: the 5 newest actions.
+function celebrateNew(data) {
+  const seen = localStorage.getItem(SEEN_KEY);
+  const fresh = data.events.filter(e => !seen || eventTime(e) > seen).slice(0, seen ? 15 : 5).reverse();
+  fresh.forEach((e, i) => setTimeout(() => {
+    if (e.type === 'release') {
+      fireworks(scene);
+      villagers.forEach(v => v.celebrate(e));
+    } else {
+      villagers.find(v => v.person.id === e.who)?.celebrate(e);
+    }
+  }, 1500 + i * 1200));
+  if (data.events.length) localStorage.setItem(SEEN_KEY, eventTime(data.events[0]));
+  // ?party in the address replays a release celebration, for demos
+  if (new URLSearchParams(location.search).has('party')) {
+    setTimeout(() => { fireworks(scene, 12); villagers.forEach(v => v.celebrate({ type: 'release', who: 'team' })); }, 1000);
+  }
+}
+
+// The robot updates farm.json about once an hour; reload when it changes so the village regrows.
+function watchForUpdates() {
+  setInterval(async () => {
+    try {
+      const next = await (await fetch(`data/farm.json?v=${Date.now()}`)).json();
+      if (next.updated !== farm.updated) location.reload();
+    } catch { /* offline for a moment; try again next time */ }
+  }, 5 * 60 * 1000);
 }
 
 const raycaster = new THREE.Raycaster();
@@ -174,6 +209,7 @@ function frame() {
     if (o.userData.bee) o.position.set(Math.cos(t * 3) * 0.35, 0.8 + Math.sin(t * 5) * 0.12, Math.sin(t * 3) * 0.35);
   });
   updateLeaves(dt);
+  updateFireworks(scene, dt);
   if (focus) {
     const step = focus.position.clone().setY(0).sub(controls.target).multiplyScalar(Math.min(1, dt * 3));
     controls.target.add(step);
@@ -189,10 +225,12 @@ function frame() {
 // Cache-bust so a fresh robot update shows up without a hard refresh.
 fetch(`data/farm.json?v=${Date.now()}`)
   .then(r => r.json())
-  .then(build)
-  .then(() => {
+  .then(async data => {
+    await build(data);
     document.getElementById('loading').classList.add('done');
     window.farmReady = true;
+    celebrateNew(data);
+    watchForUpdates();
   })
   .catch(err => {
     document.getElementById('loading').textContent = `Could not load the farm: ${err.message}`;

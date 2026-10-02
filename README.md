@@ -10,6 +10,10 @@ A fall-season 3D village that grows from the team's real work.
 | Production release | A new fruit tree; the Game room grows | +20 for everyone |
 | Builders' work | The Office is built | (same coins as above) |
 
+## Villagers
+
+Everyone keeps moving. Each real action becomes a trip: a standup goes to the Conference room and then waters the field, a PR picks up seeds at the Store and plants them, a ticket carries the harvest to the Fridge, and builders carry materials to the Office. A release sends everyone to the square for fireworks. New actions since your last visit are done first, at a run, with a coin pop. Otherwise people replay their last 7 days. Add `?party` to the address to see a release celebration.
+
 Coins are spent automatically in the shop (hats, tools, decorations). The Store grows with coins spent.
 
 ## How it works

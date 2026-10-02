@@ -96,8 +96,8 @@ export function renderSidebar(farm, people, buildings, onPick) {
       </div>`;
     }).join('')}`).join('');
 
-  $('feed').innerHTML = farm.events.map(e =>
-    `<li><time>${shortDate(e.date)}</time>${eventText(e, people)}</li>`).join('');
+  $('feed').innerHTML = farm.events.slice(0, 40).map(e =>
+    `<li><time>${shortDate(e.at ?? e.date)}</time>${eventText(e, people)}</li>`).join('');
 
   const total = people.reduce((s, p) => s + p.earned, 0);
   $('team-coins').textContent = `🪙 ${total} team coins`;

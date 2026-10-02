@@ -181,3 +181,29 @@ body {
   .sidebar { top: auto; left: 8px; right: 8px; width: auto; height: 45%; }
   .sidebar.closed { transform: translateY(110%); }
 }
+
+/* what each villager is doing, and coin pops for new actions */
+.bubble {
+  font-size: 15px;
+  background: #fff;
+  border-radius: 999px;
+  padding: 1px 5px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .25);
+  pointer-events: none;
+}
+.coin-pop {
+  display: inline-block;
+  font: bold 15px "Trebuchet MS", sans-serif;
+  color: #fff;
+  background: var(--gold);
+  border: 2px solid #b06a00;
+  padding: 2px 8px;
+  border-radius: 999px;
+  pointer-events: none;
+  animation: coin-rise 2.2s ease-out forwards;
+}
+@keyframes coin-rise {
+  from { transform: translateY(0) scale(.6); opacity: 0; }
+  15% { transform: translateY(-6px) scale(1.15); opacity: 1; }
+  to { transform: translateY(-60px) scale(1); opacity: 0; }
+}
