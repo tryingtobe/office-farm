@@ -5,9 +5,12 @@ import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { piece } from './kit.js';
 import { hash, COINS } from './logic.js';
 import { sound } from './audio.js';
+import { dress } from './attire.js';
 
 // Each team member in data/farm.json has "look": "female" or "male"; people with the same look get different characters.
 const MODELS = { female: ['a', 'b', 'c', 'd', 'e', 'f'], male: ['a', 'b', 'c', 'd', 'e', 'f'] };
+// A specific character for someone (black straight hair and an East Asian look for Aisulu)
+const MODEL_FOR = { aisulu: 'female-e' };
 const WALK = 1.4;
 const RUN = 2.8;
 const SCALE = 1.4;
@@ -32,24 +35,6 @@ const LINES = {
 };
 const COIN_OF = { standup: COINS.standups, pr: COINS.prs, ticket: COINS.tickets, release: COINS.release };
 const mat = color => new THREE.MeshLambertMaterial({ color });
-
-function hatMesh(id) {
-  const g = new THREE.Group();
-  const add = (geo, color, y) => { const m = new THREE.Mesh(geo, mat(color)); m.position.y = y; m.castShadow = true; g.add(m); };
-  if (id === 'straw-hat') { add(new THREE.CylinderGeometry(0.3, 0.3, 0.03, 16), '#e8c662', 0); add(new THREE.CylinderGeometry(0.14, 0.17, 0.12, 12), '#e8c662', 0.07); }
-  if (id === 'red-beanie') { add(new THREE.SphereGeometry(0.17, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), '#c8371d', -0.02); add(new THREE.SphereGeometry(0.05, 8, 6), '#ffffff', 0.17); }
-  if (id === 'cowboy-hat') { add(new THREE.CylinderGeometry(0.32, 0.32, 0.03, 16), '#8b5a2b', 0); add(new THREE.CylinderGeometry(0.13, 0.16, 0.16, 12), '#8b5a2b', 0.09); }
-  if (id === 'gold-crown') {
-    add(new THREE.CylinderGeometry(0.15, 0.15, 0.1, 12, 1, true), '#f5c518', 0.05);
-    for (let i = 0; i < 5; i++) {
-      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.08, 4), mat('#f5c518'));
-      spike.position.set(Math.cos(i * 1.256) * 0.14, 0.13, Math.sin(i * 1.256) * 0.14);
-      g.add(spike);
-    }
-  }
-  if (id === 'hard-hat') { add(new THREE.SphereGeometry(0.18, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), '#f5b82e', -0.02); add(new THREE.CylinderGeometry(0.21, 0.21, 0.02, 14), '#e09b14', 0); }
-  return g;
-}
 
 function toolMesh(id) {
   const g = new THREE.Group();
@@ -90,9 +75,9 @@ export class Villager {
     this.play('idle');
     model.position.copy(places.home).add(new THREE.Vector3((hash(person.id + 'x') % 10) / 10 - 0.5, 0, 0));
 
-    this.bubble = tag('bubble', '', 1.25 / SCALE);
+    this.bubble = tag('bubble', '', 1.7 / SCALE);
     model.add(this.bubble);
-    this.speech = tag('speech hidden', '', 1.75 / SCALE);
+    this.speech = tag('speech hidden', '', 2.1 / SCALE);
     model.add(this.speech);
   }
 
@@ -135,7 +120,7 @@ export class Villager {
 
   popCoins(amount) {
     // the renderer moves the outer div with a transform, so the animation runs on an inner span
-    const pop = tag('', `<span class="coin-pop">+${amount} 🪙</span>`, 1.4 / SCALE);
+    const pop = tag('', `<span class="coin-pop">+${amount} 🪙</span>`, 1.85 / SCALE);
     this.model.add(pop);
     sound.coin();
     pop.element.firstChild.addEventListener('animationend', () => { this.model.remove(pop); pop.element.remove(); });
@@ -238,19 +223,10 @@ export class Villager {
 export async function makeVillager(person, places, week, env) {
   const look = person.look === 'female' ? 'female' : 'male';
   const variants = MODELS[look];
-  const model = await piece(`people/character-${look}-${variants[person.lookIndex % variants.length]}`, { scale: SCALE });
+  const model = await piece(`people/character-${MODEL_FOR[person.id] ?? `${look}-${variants[person.lookIndex % variants.length]}`}`, { scale: SCALE });
   model.updateMatrixWorld(true);
-  const head = model.getObjectByName('head');
-  const headMesh = model.getObjectByName('head-mesh');
-  const hatId = person.hat?.id ?? (person.role === 'builder' ? 'hard-hat' : null);
-  if (head && hatId) {
-    const box = new THREE.Box3().setFromObject(headMesh || head);
-    const centre = box.getCenter(new THREE.Vector3());
-    const hat = hatMesh(hatId);
-    hat.position.copy(head.worldToLocal(new THREE.Vector3(centre.x, box.max.y - 0.04, centre.z)));
-    hat.scale.setScalar(1 / SCALE);
-    head.add(hat);
-  }
+  // Kyrgyz traditional clothes; hats bought in the shop show as richer embroidery
+  dress(model, { look, id: person.id, role: person.role, hatTier: person.owned.filter(it => it.kind === 'hat').length });
   const arm = model.getObjectByName('arm-right');
   if (arm && person.tool) {
     const tool = toolMesh(person.tool.id);
