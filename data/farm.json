@@ -135,6 +135,17 @@
         "prs": 0,
         "tickets": 0
       }
+    },
+    {
+      "id": "fuming",
+      "name": "FuMing",
+      "role": "builder",
+      "look": "male",
+      "counts": {
+        "standups": 0,
+        "prs": 0,
+        "tickets": 0
+      }
     }
   ],
   "events": [
