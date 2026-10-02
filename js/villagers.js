@@ -11,7 +11,7 @@ const MODELS = { female: ['a', 'b', 'c', 'd', 'e', 'f'], male: ['a', 'b', 'c', '
 const WALK = 1.4;
 const RUN = 2.8;
 const SCALE = 1.4;
-const BUBBLE = { standup: '💧', pr: '🌱', ticket: '🧺', release: '🎉', errand: '☕', night: '💤', weekend: '🎮' };
+const BUBBLE = { standup: '💧', pr: '🌱', ticket: '🧺', release: '🎉', errand: '☕', night: '💤', weekend: '🎮', visit: '👋' };
 
 // Fun things people say. Never about real work, because the site is public.
 const LINES = {
@@ -27,6 +27,8 @@ const LINES = {
   summer: ['So hot today ☀️'],
   fall: ['Look at the leaves 🍁', 'Harvest time! 🧺'],
   winter: ['Hot tea in the yurt? 🫖'],
+  elder: ['What lovely crops, children! 🌾', 'Have you eaten? Take some boorsok 😊', 'Well done, everyone 👏',
+    'Wear a hat, the sun is strong!', 'I remember when this was all fields 🏡'],
 };
 const COIN_OF = { standup: COINS.standups, pr: COINS.prs, ticket: COINS.tickets, release: COINS.release };
 const mat = color => new THREE.MeshLambertMaterial({ color });
@@ -68,7 +70,7 @@ function tag(cls, html, height) {
 }
 
 export class Villager {
-  // places: { home, conference, store, fridge, office, gameroom, campfire, buildings: [...] }
+  // places: { home, conference, store, fridge, office, gameroom, campfire, buildings: [...], fields: [...] }
   // env() returns the current time of day, season and weather (see env.js)
   constructor(person, model, places, week, env) {
     this.env = env;
@@ -100,7 +102,8 @@ export class Villager {
     const now = this.env();
     if (this.speech.element.classList.contains('hidden')) {
       const pool = [...LINES.any, ...LINES[now.season], ...(LINES[now.weather] ?? []),
-        ...(now.night ? LINES.night.concat(LINES.night) : []), ...(now.weekend ? LINES.weekend : [])];
+        ...(now.night ? LINES.night.concat(LINES.night) : []), ...(now.weekend ? LINES.weekend : []),
+        ...(this.person.role === 'elder' ? LINES.elder.concat(LINES.elder) : [])];
       this.speech.element.textContent = pool[Math.floor(Math.random() * pool.length)];
       this.speech.element.classList.remove('hidden');
       this.chatIn = 3.5;
@@ -153,6 +156,12 @@ export class Villager {
       const spot = p.gameroom.clone().add(new THREE.Vector3((Math.random() - 0.5) * 4, 0, (Math.random() - 0.5) * 3));
       return [{ to: spot, anim: ['emote-yes', 'sit', 'idle'][Math.floor(Math.random() * 3)], time: 6 + Math.random() * 6 }];
     }
+    if (type === 'visit') {
+      // the elder checks on a field or a building, then on another one
+      const spots = [...p.fields, ...p.fields, ...p.buildings];
+      const pick = () => spots[Math.floor(Math.random() * spots.length)].clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.2, 0, -0.4));
+      return [{ to: pick(), anim: 'emote-yes', time: 3 }, { to: pick(), anim: 'idle', time: 2.5 }];
+    }
     if (builder) {
       const first = type === 'standup' ? { to: p.conference, anim: 'emote-yes', time: 2 } : { to: p.store, anim: 'pick-up', time: 1.2 };
       return [first, { to: p.office, anim: 'interact-right', time: 4 }];
@@ -170,6 +179,7 @@ export class Villager {
     const now = this.env();
     if (now.night) return { type: 'night' };
     if (now.weekend) return { type: 'weekend' };
+    if (this.person.role === 'elder') return { type: 'visit' };
     if (!this.week.length) return { type: 'errand' };
     const e = this.week[this.replayAt % this.week.length];
     this.replayAt++;

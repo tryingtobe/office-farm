@@ -89,14 +89,14 @@ let horses = null;
 const pickables = [];
 
 function pick(target) {
-  if (selectedLabel) selectedLabel.element.classList.add('hidden');
+  if (selectedLabel) selectedLabel.element.classList.remove('selected');
   if (target.type === 'person') {
     const p = people.find(x => x.id === target.id);
     showPerson(p, farm.releases);
     const v = villagers.find(x => x.person.id === target.id);
     if (v) {
       selectedLabel = v.label;
-      selectedLabel.element.classList.remove('hidden');
+      selectedLabel.element.classList.add('selected');
       focus = v.model;
       pets?.dog.follow(v);
     }
@@ -136,7 +136,7 @@ async function build(data) {
   path(scene, { x: 10.5, z: 5.6 }, { x: 10.5, z: 9.8 });
   path(scene, doors.gameroom, CAMPFIRE);
 
-  const growers = people.filter(p => p.role !== 'builder');
+  const growers = people.filter(p => p.role === 'farmer' || p.role === 'gardener');
   const homes = {};
   for (const [i, p] of growers.entries()) {
     const g = await plot(p, PLOT_SPOTS[i]);
@@ -150,6 +150,9 @@ async function build(data) {
     label(`${p.name} · 🪙 ${p.earned}`, '', sign, 0.5);
   }
   for (const p of people.filter(p => p.role === 'builder')) homes[p.id] = doors.office;
+  // the village elder lives by the square and visits everyone's fields
+  for (const p of people.filter(p => p.role === 'elder')) homes[p.id] = new THREE.Vector3(-2.5, 0, 3.4);
+  const fields = growers.map(p => homes[p.id]);
 
   const totalTickets = people.reduce((s, p) => s + p.counts.tickets, 0);
   await orchard(scene, data.releases, totalTickets);
@@ -171,10 +174,11 @@ async function build(data) {
   const weekAgo = new Date(Date.parse(data.updated) - 7 * 864e5).toISOString();
   for (const p of people) {
     const week = data.events.filter(e => e.who === p.id && eventTime(e) >= weekAgo).reverse();
-    const places = { ...doors, home: homes[p.id], campfire: CAMPFIRE, buildings: Object.values(doors) };
+    const places = { ...doors, home: homes[p.id], campfire: CAMPFIRE, buildings: Object.values(doors), fields };
     const v = await makeVillager(p, places, week, getEnv);
     const badgeIcons = p.badges.map(b => b.icon).join('');
-    v.label = label(`${p.name} ${badgeIcons}`, 'person-label hidden', v.model, 1.2);
+    // every villager shows their name at their feet; the picked one is highlighted
+    v.label = label(`${p.name} ${badgeIcons}`, 'person-label', v.model, 0);
     scene.add(v.model);
     pickables.push(v.model);
     villagers.push(v);

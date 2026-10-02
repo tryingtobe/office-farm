@@ -39,8 +39,10 @@ export function showPerson(p, releases) {
   $('selected').innerHTML = `
     <h3>${ROLE_ICON[p.role]} ${p.name} <small>(${p.role})</small></h3>
     <div class="grid">
-      <span>💧 Standups: ${p.counts.standups}</span><span>🌱 PRs: ${p.counts.prs}</span>
-      <span>🧺 Tickets: ${p.counts.tickets}</span><span>🎉 Releases: ${releases}</span>
+      ${p.role === 'elder'
+        ? `<span>🏰 Village elder</span><span>🗓️ Days: ${p.elderDays} × ${COINS.elderDay}</span>`
+        : `<span>💧 Standups: ${p.counts.standups}</span><span>🌱 PRs: ${p.counts.prs}</span>
+      <span>🧺 Tickets: ${p.counts.tickets}</span>`}<span>🎉 Releases: ${releases}</span>
       <span>🪙 Earned: ${p.earned}</span><span>👛 Left: ${p.balance}</span>
     </div>
     <p><b>Owns:</b> ${items}</p>
@@ -67,8 +69,15 @@ export function showBuilding(b) {
 }
 
 export function renderSidebar(farm, people, buildings, onPick) {
-  const ranked = [...people].sort((a, b) => b.earned - a.earned);
-  $('leaderboard').innerHTML = ranked.map((p, i) => `
+  // the village elder has her own place at the top and is not ranked
+  const elders = people.filter(p => p.role === 'elder');
+  const ranked = people.filter(p => p.role !== 'elder').sort((a, b) => b.earned - a.earned);
+  $('leaderboard').innerHTML = elders.map(p => `
+    <li data-id="${p.id}" class="elder">
+      <span class="rank">🏰</span>
+      <span class="who">${p.name}<small>👵 Village elder · ${p.owned.map(it => it.icon).join('')}</small></span>
+      <span class="coins">🪙 ${p.earned}</span>
+    </li>`).join('') + ranked.map((p, i) => `
     <li data-id="${p.id}">
       <span class="rank">${['🥇', '🥈', '🥉'][i] || i + 1}</span>
       <span class="who">${p.name} ${p.badges.map(b => `<span title="${b.name}: ${b.about}">${b.icon}</span>`).join('')}<small>${ROLE_ICON[p.role]} ${p.role} · ${p.owned.map(it => it.icon).join('')}</small></span>

@@ -1,6 +1,6 @@
 // Game rules: coins, the auto-shop and building levels. No drawing code here.
 
-export const COINS = { prs: 15, standups: 30, tickets: 50, release: 20 };
+export const COINS = { prs: 15, standups: 30, tickets: 50, release: 20, elderDay: 20 };
 
 export const SHOP = [
   { id: 'straw-hat',    kind: 'hat',   name: 'Straw hat',    icon: '👒', cost: 60 },
@@ -17,7 +17,7 @@ export const SHOP = [
   { id: 'pumpkin-cart', kind: 'decor', name: 'Pumpkin cart', icon: '🛞', cost: 250 },
 ];
 
-export const ROLE_ICON = { farmer: '🧑‍🌾', gardener: '🌻', builder: '🔨' };
+export const ROLE_ICON = { farmer: '🧑‍🌾', gardener: '🌻', builder: '🔨', elder: '👵' };
 
 // Each building grows from one kind of team activity. `steps` are the totals needed for levels 1-4.
 export const BUILDINGS = [
@@ -35,9 +35,22 @@ export function hash(text) {
   return h >>> 0;
 }
 
-export function earnedCoins(counts, releases) {
+export function earnedCoins(counts, releases, elderDays = 0) {
   return counts.prs * COINS.prs + counts.standups * COINS.standups +
-    counts.tickets * COINS.tickets + releases * COINS.release;
+    counts.tickets * COINS.tickets + releases * COINS.release + elderDays * COINS.elderDay;
+}
+
+// Working days (Mon-Fri, Bishkek dates) from `since` up to and including the day of `updated`.
+// The village elder doesn't use Slack or Jira, so she earns a daily allowance instead.
+export function workingDays(since, updated) {
+  if (!since || !updated) return 0;
+  const last = new Date(Date.parse(updated) + 6 * 3600e3).toISOString().slice(0, 10);
+  let n = 0;
+  for (const d = new Date(since + 'T00:00:00Z'); d.toISOString().slice(0, 10) <= last; d.setUTCDate(d.getUTCDate() + 1)) {
+    const wd = d.getUTCDay();
+    if (wd !== 0 && wd !== 6) n++;
+  }
+  return n;
 }
 
 // Auto-shop: buy wishlist items in order; stop at the first one you can't afford and save for it.
@@ -56,14 +69,16 @@ export function autoShop(person, earned) {
 
 export function buildPeople(data) {
   const looks = {};
+  const elderDays = workingDays(data.since, data.updated);
   return data.team.map((p, i) => {
-    const earned = earnedCoins(p.counts, data.releases);
+    const earned = earnedCoins(p.counts, data.releases, p.role === 'elder' ? elderDays : 0);
     const shop = autoShop(p, earned);
     const latest = kind => [...shop.owned].reverse().find(it => it.kind === kind);
     return {
       ...p,
       index: i,
       lookIndex: (looks[p.look] = (looks[p.look] ?? -1) + 1),
+      elderDays: p.role === 'elder' ? elderDays : 0,
       earned,
       ...shop,
       spent: earned - shop.balance,

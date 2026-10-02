@@ -9,6 +9,7 @@ A fall-season 3D village that grows from the team's real work.
 | Done Jira ticket | Harvest goes to the Fridge; gardeners plant a flower | +50 |
 | Production release | A new fruit tree; the Game room grows | +20 for everyone |
 | Builders' work | The Office is built | (same coins as above) |
+| Village elder (Chynara eje, no Slack/Jira) | She visits everyone's fields | +20 every working day |
 
 ## Villagers
 

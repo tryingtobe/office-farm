@@ -115,6 +115,7 @@ body {
   transition: background .2s, transform .2s;
 }
 .leaderboard li:nth-child(odd) { background: #fbe8c8; }
+.leaderboard li.elder { background: linear-gradient(90deg, #f3e1ff, #ffe9c7); }
 .leaderboard li:hover { background: #ffe0b0; transform: translateX(-2px); }
 .rank { width: 26px; font-weight: bold; text-align: center; }
 .who { flex: 1; }
@@ -182,7 +183,8 @@ body {
 }
 .label.building-label { background: rgba(140, 78, 124, .85); font-size: 13px; border-radius: 14px; padding: 4px 12px; }
 .label.building-label small { display: block; font-weight: normal; font-size: 11px; color: #ffe3a3; }
-.label.person-label { background: var(--pumpkin); }
+.label.person-label { background: rgba(240, 123, 31, .88); font-size: 11px; padding: 2px 8px; margin-top: 22px; }
+.label.person-label.selected { background: var(--maple); font-size: 13px; outline: 2px solid #fff; }
 
 @media (max-width: 800px) {
   .topbar { border-radius: 22px; }
