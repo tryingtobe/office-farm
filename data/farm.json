@@ -1,0 +1,33 @@
+{
+  "sample": true,
+  "updated": "2026-10-02T07:00:00Z",
+  "since": "2026-09-21",
+  "releases": 1,
+  "team": [
+    { "id": "aman",    "name": "Aman",        "role": "farmer",   "counts": { "prs": 9, "standups": 9, "tickets": 6 } },
+    { "id": "alymbek", "name": "Alymbek",     "role": "farmer",   "counts": { "prs": 6, "standups": 8, "tickets": 4 } },
+    { "id": "aisulu",  "name": "Aisulu",      "role": "farmer",   "counts": { "prs": 3, "standups": 9, "tickets": 2 } },
+    { "id": "daniel",  "name": "Daniel",      "role": "farmer",   "counts": { "prs": 1, "standups": 3, "tickets": 1 } },
+    { "id": "sasha",   "name": "Sasha",       "role": "farmer",   "counts": { "prs": 2, "standups": 8, "tickets": 2 } },
+    { "id": "garry",   "name": "Garry",       "role": "farmer",   "counts": { "prs": 2, "standups": 9, "tickets": 1 } },
+    { "id": "tima",    "name": "Tima",        "role": "gardener", "counts": { "prs": 0, "standups": 9, "tickets": 7 } },
+    { "id": "urmat",   "name": "Urmat",       "role": "gardener", "counts": { "prs": 0, "standups": 8, "tickets": 5 } },
+    { "id": "aiym",    "name": "Aiym",        "role": "gardener", "counts": { "prs": 0, "standups": 9, "tickets": 4 } },
+    { "id": "aaron",   "name": "Aaron",       "role": "gardener", "counts": { "prs": 0, "standups": 4, "tickets": 2 } },
+    { "id": "chynara", "name": "Chynara eje", "role": "builder",  "counts": { "prs": 0, "standups": 5, "tickets": 3 } },
+    { "id": "elaine",  "name": "Elaine",      "role": "builder",  "counts": { "prs": 0, "standups": 4, "tickets": 2 } }
+  ],
+  "events": [
+    { "date": "2026-10-02", "who": "aman",    "type": "standup" },
+    { "date": "2026-10-02", "who": "tima",    "type": "standup" },
+    { "date": "2026-10-02", "who": "elaine",  "type": "standup" },
+    { "date": "2026-10-01", "who": "aman",    "type": "pr" },
+    { "date": "2026-10-01", "who": "alymbek", "type": "pr" },
+    { "date": "2026-10-01", "who": "tima",    "type": "ticket" },
+    { "date": "2026-10-01", "who": "chynara", "type": "ticket" },
+    { "date": "2026-09-30", "who": "aman",    "type": "pr" },
+    { "date": "2026-09-30", "who": "urmat",   "type": "ticket" },
+    { "date": "2026-09-29", "who": "aisulu",  "type": "ticket" },
+    { "date": "2026-09-24", "who": "team",    "type": "release" }
+  ]
+}
