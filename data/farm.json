@@ -1,6 +1,6 @@
 {
   "sample": false,
-  "updated": "2026-10-02T09:26:11Z",
+  "updated": "2026-10-02T10:15:00Z",
   "since": "2026-10-02",
   "releases": 0,
   "team": [
@@ -23,7 +23,7 @@
       "counts": {
         "standups": 1,
         "prs": 4,
-        "tickets": 2
+        "tickets": 3
       }
     },
     {
@@ -149,6 +149,12 @@
     }
   ],
   "events": [
+    {
+      "at": "2026-10-02T10:03:47Z",
+      "who": "alymbek",
+      "type": "ticket",
+      "ref": "2f3043a62258"
+    },
     {
       "at": "2026-10-02T09:13:31Z",
       "who": "aman",
